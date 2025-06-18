@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Data Pemesan Tiket</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+    }
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 16px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background: #444;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #222;
+    }
+    .data-container {
+      max-width: 100%;
+      padding: 20px 40px;
+      margin: 0 auto;
+    }
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+    }
+    table {
+      width: 100%;
+      min-width: 1200px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 16px;
+      border: 1px solid #999;
+      text-align: left;
+      vertical-align: top;
+      font-size: 15px;
+    }
+    th {
+      background: #eee;
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    .logout-btn {
+      margin-top: 30px;
+      background-color: #888;
+    }
+    .logout-btn:hover {
+      background-color: #555;
+    }
+    @media (max-width: 768px) {
+      table, th, td {
+        font-size: 14px;
+        padding: 10px;
+      }
+      .data-container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN ADMIN -->
+<div class="login-container" id="loginForm">
+  <h2>Login Admin</h2>
+  <input type="text" id="username" placeholder="Masukkan Username">
+  <input type="password" id="password" placeholder="Masukkan Password">
+  <button onclick="login()">Masuk</button>
+</div>
+
+<!-- PANEL ADMIN -->
+<div class="data-container" id="adminPanel" style="display: none;">
+  <h2>Data Pemesan Tiket</h2>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama Lengkap</th>
+          <th>Email</th>
+          <th>No KTP</th>
+          <th>No Telepon</th>
+          <th>Kategori Tiket</th>
+          <th>Metode Pembayaran</th>
+          <th>Waktu Pemesanan</th>
+        </tr>
+      </thead>
+      <tbody id="tabelPemesan"></tbody>
+    </table>
+  </div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyD1HWtoCb-EOapsJu7wnOXIXTEtQEOLCZ8",
+    authDomain: "satudekade-4b54a.firebaseapp.com",
+    databaseURL: "https://satudekade-4b54a-default-rtdb.firebaseio.com",
+    projectId: "satudekade-4b54a",
+    storageBucket: "satudekade-4b54a.appspot.com",
+    messagingSenderId: "76649124389",
+    appId: "1:76649124389:web:3b0b7072ea71e7ece7a5cc"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const tabel = document.getElementById("tabelPemesan");
+
+  window.onload = () => {
+    if (localStorage.getItem("adminLoggedIn") === "true") {
+      showAdminPanel();
+    }
+  };
+
+  function login() {
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+
+    if (user === "admin" && pass === "ultrasmanmodel") {
+      localStorage.setItem("adminLoggedIn", "true");
+      showAdminPanel();
+    } else {
+      alert("Username atau password salah!");
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem("adminLoggedIn");
+    location.reload();
+  }
+
+  function showAdminPanel() {
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+    loadData();
+  }
+
+  function loadData() {
+    db.ref("pemesan").once("value").then(snapshot => {
+      const pemesananList = [];
+
+      snapshot.forEach(namaSnap => {
+        const nama = namaSnap.key;
+        namaSnap.forEach(emailSnap => {
+          const email = emailSnap.key.replace(/_/g, ".");
+          emailSnap.forEach(ktpSnap => {
+            const ktp = ktpSnap.key;
+            ktpSnap.forEach(telpSnap => {
+              const telp = telpSnap.key;
+              telpSnap.forEach(kategoriSnap => {
+                const kategori = kategoriSnap.key;
+                kategoriSnap.forEach(metodeSnap => {
+                  const metode = metodeSnap.key;
+                  const data = metodeSnap.val();
+                  const waktu = new Date(data?.tanggal || 0);
+
+                  pemesananList.push({
+                    nama,
+                    email,
+                    ktp,
+                    telp,
+                    kategori,
+                    metode,
+                    tanggal: data?.tanggal || "-",
+                    waktu
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+      if (pemesananList.length === 0) {
+        tabel.innerHTML = `<tr><td colspan="8">Belum ada data pemesanan.</td></tr>`;
+        return;
+      }
+
+      // Urutkan berdasarkan waktu pemesanan (ascending)
+      pemesananList.sort((a, b) => {
+        const tA = new Date(a.waktu).getTime() || 0;
+        const tB = new Date(b.waktu).getTime() || 0;
+        return tA - tB;
+      });
+
+      tabel.innerHTML = "";
+      pemesananList.forEach((item, index) => {
+        const row = `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.nama}</td>
+            <td>${item.email}</td>
+            <td>${item.ktp}</td>
+            <td>${item.telp}</td>
+            <td>${item.kategori}</td>
+            <td>${item.metode}</td>
+            <td>${item.tanggal}</td>
+          </tr>`;
+        tabel.innerHTML += row;
+      });
+    }).catch(error => {
+      console.error("Gagal mengambil data:", error);
+      tabel.innerHTML = `<tr><td colspan="8">Gagal memuat data. Periksa koneksi atau struktur database.</td></tr>`;
+    });
+  }
+</script>
+
+</body>
+</html>
