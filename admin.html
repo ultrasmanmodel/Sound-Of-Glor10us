@@ -22,7 +22,6 @@
     margin: 20px 0;
     color: #222;
   }
-  /* LOGIN BOX */
   .login-container {
     max-width: 360px;
     margin: 100px auto;
@@ -54,7 +53,6 @@
   .login-container button:hover {
     background: #5e5e5f;
   }
-  /* ADMIN PANEL */
   .data-container {
     padding: 20px 40px;
   }
@@ -168,6 +166,7 @@
   window.onload = () => {
     if (localStorage.getItem('adminLoggedIn') === 'true') showAdminPanel();
   };
+
   function login() {
     const user = document.getElementById('username').value;
     const pass = document.getElementById('password').value;
@@ -178,17 +177,21 @@
       alert('Username atau password salah!');
     }
   }
+
   function logout() {
     localStorage.removeItem('adminLoggedIn');
     location.reload();
   }
+
   function showAdminPanel() {
     document.getElementById('loginForm').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
     loadData();
   }
+
+  // REAL-TIME LISTENER UNTUK DATA PEMESAN
   function loadData() {
-    db.ref('pemesan').once('value').then(snapshot => {
+    db.ref('pemesan').on('value', snapshot => {
       const list = [];
       snapshot.forEach(namaSnap => {
         const nama = namaSnap.key;
@@ -203,17 +206,22 @@
                 kategoriSnap.forEach(metodeSnap => {
                   const metode = metodeSnap.key;
                   const data = metodeSnap.val();
-                  list.push({ nama, email, ktp, telp, kategori, metode, harga: hargaTiket[kategori], waktu: new Date(data.tanggal), tanggal: data.tanggal });
+                  list.push({
+                    nama, email, ktp, telp, kategori, metode,
+                    harga: hargaTiket[kategori], waktu: new Date(data.tanggal), tanggal: data.tanggal
+                  });
                 });
               });
             });
           });
         });
       });
+
       if (list.length === 0) {
         tabel.innerHTML = '<tr><td colspan="9">Belum ada data pemesanan.</td></tr>';
         return;
       }
+
       list.sort((a,b) => a.waktu - b.waktu);
       tabel.innerHTML = list.map((item,i) => `
         <tr>
@@ -227,8 +235,9 @@
           <td>${item.metode}</td>
           <td>${item.tanggal}</td>
         </tr>`).join('');
-    }).catch(() => {
+    }, error => {
       tabel.innerHTML = '<tr><td colspan="9">Error memuat data.</td></tr>';
+      console.error(error);
     });
   }
 </script>
