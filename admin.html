@@ -1,114 +1,108 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Admin - Data Pemesan Tiket</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<style>
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f9;
-    color: #333;
-    margin: 0;
-    padding: 0;
-  }
-  h2 {
-    text-align: center;
-    margin: 20px 0;
-    color: #222;
-  }
-  .login-container {
-    max-width: 360px;
-    margin: 100px auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-  }
-  .login-container input {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 16px;
-    text-align: center;
-  }
-  .login-container button {
-    width: 100%;
-    padding: 12px;
-    background: #7a7a7b;
-    color: white;
-    font-size: 16px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  .login-container button:hover {
-    background: #5e5e5f;
-  }
-  .data-container {
-    padding: 20px 40px;
-  }
-  .table-container {
-    overflow-x: auto;
-    background: #fff;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 1000px;
-  }
-  th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: center;
-    vertical-align: middle;
-    font-size: 14px;
-  }
-  th {
-    background: #7a7a7b;
-    color: #fff;
-    white-space: nowrap;
-  }
-  tr:nth-child(even) {
-    background: #f9f9f9;
-  }
-  tr:hover {
-    background: #e6e6e6;
-  }
-  .logout-btn {
-    padding: 10px 24px;
-    background: #7a7a7b;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 20px;
-    float: right;
-  }
-  .logout-btn:hover {
-    background: #5e5e5f;
-  }
-  @media (max-width: 768px) {
-    th, td {
-      font-size: 12px;
-      padding: 8px;
+  <meta charset="UTF-8">
+  <title>Admin - Data Pemesan Tiket</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    h2 {
+      text-align: center;
+      margin: 20px 0;
+      color: #222;
+    }
+    .login-container {
+      max-width: 360px;
+      margin: 100px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .login-container input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      text-align: center;
+    }
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      background: #7a7a7b;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .login-container button:hover {
+      background: #5e5e5f;
     }
     .data-container {
-      padding: 10px;
+      padding: 20px 40px;
     }
-  }
-</style>
+    .table-container {
+      overflow-x: auto;
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1000px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+    th {
+      background: #7a7a7b;
+      color: #fff;
+      white-space: nowrap;
+    }
+    tr:nth-child(even) { background: #f9f9f9; }
+    tr:hover { background: #e6e6e6; }
+    .logout-btn {
+      padding: 10px 24px;
+      background: #7a7a7b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 20px;
+      float: right;
+    }
+    .logout-btn:hover {
+      background: #5e5e5f;
+    }
+    @media (max-width: 768px) {
+      th, td {
+        font-size: 12px;
+        padding: 8px;
+      }
+      .data-container {
+        padding: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -150,6 +144,7 @@
     "Pre Sale 2": "Rp 65.000",
     "Pre Sale 3": "Rp 75.000"
   };
+
   const firebaseConfig = {
     apiKey: "AIzaSyD1HWtoCb-EOapsJu7wnOXIXTEtQEOLCZ8",
     authDomain: "satudekade-4b54a.firebaseapp.com",
@@ -159,6 +154,7 @@
     messagingSenderId: "76649124389",
     appId: "1:76649124389:web:3b0b7072ea71e7ece7a5cc"
   };
+
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   const tabel = document.getElementById('tabelPemesan');
@@ -189,7 +185,17 @@
     loadData();
   }
 
-  // REAL-TIME LISTENER UNTUK DATA PEMESAN
+  function parseTanggal(str) {
+    try {
+      const parts = str.split(', ');
+      const [d, m, y] = parts[0].split('/').map(Number);
+      const [hh, mm, ss] = parts[1].split('.').map(Number);
+      return new Date(y, m - 1, d, hh, mm, ss);
+    } catch (e) {
+      return new Date(); // fallback jika parsing gagal
+    }
+  }
+
   function loadData() {
     db.ref('pemesan').on('value', snapshot => {
       const list = [];
@@ -206,9 +212,17 @@
                 kategoriSnap.forEach(metodeSnap => {
                   const metode = metodeSnap.key;
                   const data = metodeSnap.val();
+                  const waktu = parseTanggal(data.tanggal);
                   list.push({
-                    nama, email, ktp, telp, kategori, metode,
-                    harga: hargaTiket[kategori], waktu: new Date(data.tanggal), tanggal: data.tanggal
+                    nama,
+                    email,
+                    ktp,
+                    telp,
+                    kategori,
+                    metode,
+                    harga: hargaTiket[kategori] || "Rp -",
+                    waktu,
+                    tanggal: data.tanggal
                   });
                 });
               });
@@ -222,10 +236,13 @@
         return;
       }
 
-      list.sort((a,b) => a.waktu - b.waktu);
-      tabel.innerHTML = list.map((item,i) => `
+      // Urutkan berdasarkan waktu pemesanan
+      list.sort((a, b) => a.waktu - b.waktu);
+
+      // Tampilkan ke tabel
+      tabel.innerHTML = list.map((item, i) => `
         <tr>
-          <td>${i+1}</td>
+          <td>${i + 1}</td>
           <td>${item.nama}</td>
           <td>${item.email}</td>
           <td>${item.ktp}</td>
@@ -234,7 +251,8 @@
           <td>${item.harga}</td>
           <td>${item.metode}</td>
           <td>${item.tanggal}</td>
-        </tr>`).join('');
+        </tr>
+      `).join('');
     }, error => {
       tabel.innerHTML = '<tr><td colspan="9">Error memuat data.</td></tr>';
       console.error(error);
