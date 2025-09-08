@@ -83,18 +83,25 @@
     <div id="hargaInfo" class="harga-info">Harga: -</div>
 
     <div class="payment-info">
-      <label>Metode Pembayaran</label>
+      <label for="bank">Metode Pembayaran</label>
+      <select id="bank" required>
+        <option value="" disabled selected>Pilih Bank</option>
+        <option value="BCA">BCA</option>
+        <option value="BRI">BRI</option>
+        <option value="BNI">BNI</option>
+      </select>
+
       <div class="payment-card">
         <table class="payment-table">
-          <tr><th>Bank</th><td>BCA</td></tr>
-          <tr><th>Nomor Rekening</th><td>8640910942</td></tr>
-          <tr><th>Atas Nama</th><td>MUHAMMAD AJI YOGA PRATAMA</td></tr>
+          <tr><th>Bank</th><td id="bankName">-</td></tr>
+          <tr><th>Nomor Rekening</th><td id="bankRek">-</td></tr>
+          <tr><th>Atas Nama</th><td id="bankNama">-</td></tr>
         </table>
         <p class="note">Setelah transfer, screenshot bukti pembayaran dan cetak e-ticket lalu konfirmasi ke WhatsApp panitia.</p>
       </div>
     </div>
 
-    <input type="hidden" id="metode" value="BCA - 8640910942 (MUHAMMAD AJI YOGA PRATAMA)">
+    <input type="hidden" id="metode" value="">
     <button type="submit">Pesan Tiket</button>
   </form>
 </div>
@@ -136,10 +143,27 @@
     "Pre Sale 3": "Rp 75.000"
   };
 
+  const bankInfo = {
+    "BCA": { rek: "8640910942", nama: "MUHAMMAD AJI YOGA PRATAMA" },
+    "BRI": { rek: "1234567890", nama: "MUHAMMAD AJI YOGA PRATAMA" },
+    "BNI": { rek: "9876543210", nama: "MUHAMMAD AJI YOGA PRATAMA" }
+  };
+
   const kategoriEl = document.getElementById('kategori');
   kategoriEl.addEventListener('change', () => {
     const harga = hargaTiket[kategoriEl.value];
     document.getElementById('hargaInfo').innerText = `Harga: ${harga}`;
+  });
+
+  const bankEl = document.getElementById('bank');
+  bankEl.addEventListener('change', () => {
+    const bank = bankEl.value;
+    if (bankInfo[bank]) {
+      document.getElementById('bankName').innerText = bank;
+      document.getElementById('bankRek').innerText = bankInfo[bank].rek;
+      document.getElementById('bankNama').innerText = bankInfo[bank].nama;
+      document.getElementById('metode').value = `${bank} - ${bankInfo[bank].rek} (${bankInfo[bank].nama})`;
+    }
   });
 
   const firebaseConfig = {
@@ -164,6 +188,11 @@
     const harga = hargaTiket[kategori];
     const metode = document.getElementById("metode").value;
     const tanggal = new Date().toLocaleString("id-ID");
+
+    if (!metode) {
+      alert("Silakan pilih metode pembayaran terlebih dahulu!");
+      return;
+    }
 
     // Cek kuota kategori
     db.ref("pemesan").once("value").then(snapshot => {
@@ -201,7 +230,7 @@
           document.getElementById("eMetode").innerText = metode;
           document.getElementById("eTanggal").innerText = tanggal;
 
-          const waMessage = `Halo, saya ingin konfirmasi pemesanan tiket:%0ANama: ${nama}%0AEmail: ${email.replace(/_/g, ".")}%0AKTP: ${ktp}%0ATelp: ${telp}%0AKategori: ${kategori}%0AHarga: ${harga}%0ATanggal: ${tanggal}`;
+          const waMessage = `Halo, saya ingin konfirmasi pemesanan tiket:%0ANama: ${nama}%0AEmail: ${email.replace(/_/g, ".")}%0AKTP: ${ktp}%0ATelp: ${telp}%0AKategori: ${kategori}%0AHarga: ${harga}%0AMetode: ${metode}%0ATanggal: ${tanggal}`;
           document.getElementById("btnWhatsapp").href = `https://wa.me/6285855094087?text=${waMessage}`;
 
           document.getElementById("eticketSection").style.display = "block";
