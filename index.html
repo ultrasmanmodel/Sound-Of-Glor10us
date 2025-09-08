@@ -16,21 +16,13 @@
     .harga-info { margin-top: 10px; padding: 10px; background: #e8e8e8; border-radius: 6px; font-weight: bold; }
     button { width: 100%; padding: 12px; margin-top: 25px; background-color: #444; border: none; color: white; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
 
-    /* Payment section */
     .payment-info { margin-top: 20px; padding: 10px; background-color: #f1f1f1; border-left: 4px solid #444; border-radius: 6px; }
-    .payment-card {
-      background: #fff;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
+    .payment-card { background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-top: 10px; }
     .payment-table { width: 100%; border-collapse: collapse; }
     .payment-table th { width: 40%; background: #f9f9f9; padding: 8px; border: 1px solid #eee; text-align: left; }
     .payment-table td { padding: 8px; border: 1px solid #eee; }
     .payment-info .note { color: red; font-weight: bold; margin-top: 10px; font-size: 14px; }
 
-    /* E-ticket styles */
     #eticketSection { display: none; padding: 20px; background: #fff; }
     #eticket { background: #fff; padding: 30px; border-radius: 8px; max-width: 600px; margin: auto; border: 1px solid #ddd; }
     #eticket h2 { text-align: center; margin-bottom: 20px; }
@@ -65,7 +57,7 @@
 
 <div class="container" id="formSection">
   <div style="text-align: center;">
-    <img src="aniv.jpg" alt="Logo Ultras Manmodel" class="eticket-logo">
+    <img src="logo.png" alt="Logo Ultras Manmodel" class="eticket-logo">
   </div>
   <form id="pesanForm">
     <label for="nama">Nama Lengkap</label>
@@ -143,6 +135,7 @@
     "Pre Sale 2": "Rp 65.000",
     "Pre Sale 3": "Rp 75.000"
   };
+
   const kategoriEl = document.getElementById('kategori');
   kategoriEl.addEventListener('change', () => {
     const harga = hargaTiket[kategoriEl.value];
@@ -172,27 +165,51 @@
     const metode = document.getElementById("metode").value;
     const tanggal = new Date().toLocaleString("id-ID");
 
-    const path = `pemesan/${nama}/${email}/${ktp}/${telp}/${kategori}/${metode}`;
-    db.ref(path).set({ tanggal })
-      .then(() => {
-        alert("Pesan tiket berhasil!");
-        document.getElementById("eNama").innerText = nama;
-        document.getElementById("eEmail").innerText = email.replace(/_/g, ".");
-        document.getElementById("eKTP").innerText = ktp;
-        document.getElementById("eTelp").innerText = telp;
-        document.getElementById("eKategori").innerText = kategori;
-        document.getElementById("eHarga").innerText = harga;
-        document.getElementById("eMetode").innerText = metode;
-        document.getElementById("eTanggal").innerText = tanggal;
+    // Cek kuota kategori
+    db.ref("pemesan").once("value").then(snapshot => {
+      let countKategori = 0;
+      snapshot.forEach(namaSnap => {
+        namaSnap.forEach(emailSnap => {
+          emailSnap.forEach(ktpSnap => {
+            ktpSnap.forEach(telpSnap => {
+              telpSnap.forEach(kategoriSnap => {
+                if (kategoriSnap.key === kategori) {
+                  countKategori++;
+                }
+              });
+            });
+          });
+        });
+      });
 
-        const waMessage = `Halo, saya ingin konfirmasi pemesanan tiket:%0ANama: ${nama}%0AEmail: ${email.replace(/_/g, ".")}%0AKTP: ${ktp}%0ATelp: ${telp}%0AKategori: ${kategori}%0AHarga: ${harga}%0ATanggal: ${tanggal}`;
-        document.getElementById("btnWhatsapp").href = `https://wa.me/6285855094087?text=${waMessage}`;
+      if (countKategori >= 50) {
+        alert(`Kuota untuk ${kategori} sudah habis (50 tiket). Silakan pilih kategori lain.`);
+        return;
+      }
 
-        document.getElementById("eticketSection").style.display = "block";
-        document.getElementById("formSection").style.display = "none";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      })
-      .catch(err => alert("Gagal menyimpan data: " + err.message));
+      // Simpan data jika kuota masih ada
+      const path = `pemesan/${nama}/${email}/${ktp}/${telp}/${kategori}/${metode}`;
+      db.ref(path).set({ tanggal })
+        .then(() => {
+          alert("Pesan tiket berhasil!");
+          document.getElementById("eNama").innerText = nama;
+          document.getElementById("eEmail").innerText = email.replace(/_/g, ".");
+          document.getElementById("eKTP").innerText = ktp;
+          document.getElementById("eTelp").innerText = telp;
+          document.getElementById("eKategori").innerText = kategori;
+          document.getElementById("eHarga").innerText = harga;
+          document.getElementById("eMetode").innerText = metode;
+          document.getElementById("eTanggal").innerText = tanggal;
+
+          const waMessage = `Halo, saya ingin konfirmasi pemesanan tiket:%0ANama: ${nama}%0AEmail: ${email.replace(/_/g, ".")}%0AKTP: ${ktp}%0ATelp: ${telp}%0AKategori: ${kategori}%0AHarga: ${harga}%0ATanggal: ${tanggal}`;
+          document.getElementById("btnWhatsapp").href = `https://wa.me/6285855094087?text=${waMessage}`;
+
+          document.getElementById("eticketSection").style.display = "block";
+          document.getElementById("formSection").style.display = "none";
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        })
+        .catch(err => alert("Gagal menyimpan data: " + err.message));
+    });
   });
 </script>
 
