@@ -6,9 +6,11 @@
   <title>Pemesanan Tiket Anniversary 1 Dekade Ultras Manmodel</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', sans-serif; background: #fff; color: #333; }
+
     .container { padding: 20px; max-width: 480px; margin: auto; }
     h2 { text-align: center; margin-bottom: 20px; }
     label { display: block; margin-top: 15px; font-weight: 600; }
@@ -18,60 +20,138 @@
 
     .payment-info { margin-top: 20px; padding: 10px; background-color: #f1f1f1; border-left: 4px solid #444; border-radius: 6px; }
     .payment-card { background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-top: 10px; }
-    .payment-table { width: 100%; border-collapse: collapse; }
-    .payment-table th { width: 40%; background: #f9f9f9; padding: 8px; border: 1px solid #eee; text-align: left; }
-    .payment-table td { padding: 8px; border: 1px solid #eee; }
-    .payment-info .note { color: red; font-weight: bold; margin-top: 10px; font-size: 14px; }
+    .payment-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .payment-table th { width: 40%; background: #f9f9f9; padding: 6px; border: 1px solid #eee; text-align: left; }
+    .payment-table td { padding: 6px; border: 1px solid #eee; }
+    .payment-info .note { color: red; font-weight: bold; margin-top: 10px; font-size: 13px; }
 
-    #eticketSection { display: none; padding: 20px; background: #fff; }
-    #eticket { background: #fff; padding: 30px; border-radius: 8px; max-width: 600px; margin: auto; border: 1px solid #ddd; }
-    #eticket h2 { text-align: center; margin-bottom: 20px; }
-    .eticket-logo { width: 100%; height: auto; margin-bottom: 15px; display: block; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    table, th, td { border: 1px solid #aaa; }
-    th, td { padding: 10px; font-size: 14px; text-align: left; vertical-align: top; }
-    th { width: 40%; background-color: #f9f9f9; }
-    #btnCetak, #btnWhatsapp button { background-color: #444; color: white; border-radius: 6px; padding: 12px; width: 100%; cursor: pointer; margin-top: 10px; }
-    .lokasi-penukaran { display: none; }
+    /* ================= E-Ticket ================ */
+    #eticketSection { display: none; padding: 20px; background: #f4f4f4; }
+    .eticket {
+      width: 500px;
+      margin: auto;
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 6px;
+      overflow: hidden;
+      font-size: 13px;
+    }
 
+    .eticket .header {
+      background: #0a0a0a;
+      color: #fff;
+      text-align: center;
+      padding: 8px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .eticket .event-title {
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 10px;
+      border-bottom: 1px solid #000;
+    }
+
+    .eticket .content {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #000;
+    }
+
+    .eticket .content-left {
+      flex: 1;
+      padding-right: 8px;
+      border-right: 1px solid #000;
+      font-size: 12px;
+    }
+
+    .eticket .content-right {
+      flex: 1;
+      padding-left: 8px;
+      text-align: center;
+    }
+
+    .eticket .content-right img {
+      max-width: 100%;
+      border-radius: 4px;
+    }
+
+    /* Bagian detail jadi tabel */
+    .eticket .detail-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .eticket .detail-table td {
+      border: 1px solid #000;
+      padding: 10px;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    .detail-left {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .detail-right {
+      text-align: left;
+    }
+
+    .ticket-type {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    #qrcode {
+      margin: 10px auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    #invoiceCode {
+      margin-top: 6px;
+      font-weight: bold;
+    }
+
+    .eticket .terms {
+      padding: 10px;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .eticket .terms ul { padding-left: 18px; }
+
+    .actions { text-align: center; padding: 10px; }
+    .actions button { background: #1a2a6c; color: #fff; border: none; padding: 8px 15px; margin: 5px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
+
+    /* Print */
     @media print {
       body * { visibility: hidden; }
-      #eticket, #eticket * { visibility: visible; }
-      #eticket {
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        padding: 40px;
-        width: 100%;
-        max-width: 100%;
-        border: none;
-        box-shadow: none;
-        background: #fff;
-      }
-      table th, table td { padding: 12px; font-size: 16px; }
-      .lokasi-penukaran { display: block; margin-top: 30px; }
-      #formSection, #btnCetak, #btnWhatsapp { display: none !important; }
+      .eticket, .eticket * { visibility: visible; }
+      .eticket { width: 100%; border: 1px solid #000; box-shadow: none; }
+      .actions { display: none; }
     }
   </style>
 </head>
 <body>
 
+<!-- Form Pemesanan -->
 <div class="container" id="formSection">
-  <div style="text-align: center;">
-    <img src="logo.png" alt="Logo Ultras Manmodel" class="eticket-logo">
+  <div class="hero-image">
+    <img src="logo.png" alt="Logo Ultras Manmodel" style="width:100%; display:block; margin:0 auto;">
   </div>
+
   <form id="pesanForm">
     <label for="nama">Nama Lengkap</label>
     <input type="text" id="nama" required>
-
     <label for="email">Email</label>
     <input type="email" id="email" required>
-
     <label for="ktp">No KTP</label>
     <input type="text" id="ktp" required>
-
     <label for="telp">No Telepon</label>
     <input type="text" id="telp" required>
-
     <label for="kategori">Kategori Tiket</label>
     <select id="kategori" required>
       <option value="" disabled selected>Pilih kategori</option>
@@ -79,91 +159,78 @@
       <option value="Pre Sale 2">Pre Sale 2</option>
       <option value="Pre Sale 3">Pre Sale 3</option>
     </select>
-
     <div id="hargaInfo" class="harga-info">Harga: -</div>
 
     <div class="payment-info">
-      <label for="bank">Metode Pembayaran</label>
-      <select id="bank" required>
-        <option value="" disabled selected>Pilih Bank</option>
-        <option value="BCA">BCA</option>
-        <option value="BRI">BRI</option>
-        <option value="BNI">BNI</option>
-      </select>
-
+      <label>Metode Pembayaran</label>
       <div class="payment-card">
         <table class="payment-table">
-          <tr><th>Bank</th><td id="bankName">-</td></tr>
-          <tr><th>Nomor Rekening</th><td id="bankRek">-</td></tr>
-          <tr><th>Atas Nama</th><td id="bankNama">-</td></tr>
+          <tr><th>Bank</th><td id="bankName">BCA</td></tr>
+          <tr><th>Nomor Rekening</th><td id="bankRek">8640910942</td></tr>
+          <tr><th>Atas Nama</th><td id="bankNama">MUHAMMAD AJI YOGA PRATAMA</td></tr>
         </table>
         <p class="note">Setelah transfer, screenshot bukti pembayaran dan cetak e-ticket lalu konfirmasi ke WhatsApp panitia.</p>
       </div>
     </div>
 
-    <input type="hidden" id="metode" value="">
+    <input type="hidden" id="metode" value="BCA - 8640910942 (MUHAMMAD AJI YOGA PRATAMA)">
     <button type="submit">Pesan Tiket</button>
   </form>
 </div>
 
+<!-- E-Ticket -->
 <div id="eticketSection">
-  <div id="eticket">
-    <div style="text-align: center;">
-      <h2>E-TICKET 1 DEKADE ULTRAS MANMODEL</h2>
-      <img src="tiket.png" alt="Logo Tiket" class="eticket-logo">
+  <div class="eticket">
+    <div class="header">E-TICKET</div>
+    <div class="event-title">ANNIVERSARY 1 DEKADE ULTRAS MANMODEL</div>
+
+    <div class="content">
+      <div class="content-left">
+        <p>📅 15 November 2025</p>
+        <p>📍 Gedung Baresta Cafe</p>
+        <p><b>Kategori:</b> <span id="eKategori"></span></p>
+      </div>
+      <div class="content-right">
+        <img src="ticket.png" alt="Poster Event">
+      </div>
     </div>
 
-    <table>
-      <tr><th>Nama Lengkap</th><td id="eNama"></td></tr>
-      <tr><th>Email</th><td id="eEmail"></td></tr>
-      <tr><th>No KTP</th><td id="eKTP"></td></tr>
-      <tr><th>No Telepon</th><td id="eTelp"></td></tr>
-      <tr><th>Kategori Tiket</th><td id="eKategori"></td></tr>
-      <tr><th>Harga Tiket</th><td id="eHarga"></td></tr>
-      <tr><th>Metode Pembayaran</th><td id="eMetode"></td></tr>
-      <tr><th>Tanggal Pemesanan</th><td id="eTanggal"></td></tr>
+    <table class="detail-table">
+      <tr>
+        <td class="detail-left">
+          <div class="ticket-type" id="ticketType"></div>
+          <div id="qrcode"></div>
+          <p id="invoiceCode"></p>
+        </td>
+        <td class="detail-right">
+          <p><b>Nama Pemesan:</b><br> <span id="eNama"></span></p>
+          <p><b>Kode Tagihan:</b><br> <span id="eInvoice"></span></p>
+        </td>
+      </tr>
     </table>
 
-    <div class="lokasi-penukaran">
-      <table>
-        <tr><th>Lokasi Penukaran</th><td>Warung Mak'e, Belakang Pasar Singonoyo</td></tr>
-        <tr><th>Jam Penukaran</th><td>15:00 - 20:00 WIB</td></tr>
-      </table>
+    <div class="terms">
+      <h4>Syarat & Ketentuan:</h4>
+      <ul>
+        <li>1 tiket berlaku untuk 1 orang dan 1 hari sesuai tanggal pertunjukan.</li>
+        <li>Tunjukkan e-ticket untuk mendapatkan gelang di lokasi penukaran.</li>
+      </ul>
     </div>
 
-    <button id="btnCetak" onclick="window.print()">Cetak Tiket</button>
-    <a id="btnWhatsapp" href="#" target="_blank"><button>Konfirmasi via WhatsApp</button></a>
+    <div class="actions">
+      <button onclick="window.print()">Cetak Tiket</button>
+      <button id="waButton">Konfirmasi via WhatsApp</button>
+    </div>
   </div>
 </div>
 
 <script>
-  const hargaTiket = {
-    "Pre Sale 1": "Rp 50.000",
-    "Pre Sale 2": "Rp 65.000",
-    "Pre Sale 3": "Rp 75.000"
-  };
+  const hargaTiket = { "Pre Sale 1": "Rp 50.000", "Pre Sale 2": "Rp 65.000", "Pre Sale 3": "Rp 75.000" };
+  const waNumber = "6285855094087";
 
-  const bankInfo = {
-    "BCA": { rek: "8640910942", nama: "MUHAMMAD AJI YOGA PRATAMA" },
-    "BRI": { rek: "1234567890", nama: "MUHAMMAD AJI YOGA PRATAMA" },
-    "BNI": { rek: "9876543210", nama: "MUHAMMAD AJI YOGA PRATAMA" }
-  };
-
-  const kategoriEl = document.getElementById('kategori');
-  kategoriEl.addEventListener('change', () => {
-    const harga = hargaTiket[kategoriEl.value];
-    document.getElementById('hargaInfo').innerText = `Harga: ${harga}`;
-  });
-
-  const bankEl = document.getElementById('bank');
-  bankEl.addEventListener('change', () => {
-    const bank = bankEl.value;
-    if (bankInfo[bank]) {
-      document.getElementById('bankName').innerText = bank;
-      document.getElementById('bankRek').innerText = bankInfo[bank].rek;
-      document.getElementById('bankNama').innerText = bankInfo[bank].nama;
-      document.getElementById('metode').value = `${bank} - ${bankInfo[bank].rek} (${bankInfo[bank].nama})`;
-    }
+  document.getElementById('kategori').addEventListener('change', () => {
+    const kategori = document.getElementById('kategori').value;
+    document.getElementById('hargaInfo').innerText = `Harga: ${hargaTiket[kategori]}`;
   });
 
   const firebaseConfig = {
@@ -178,67 +245,52 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
+  function generateInvoiceCode(nama) {
+    const namaParts = nama.trim().split(/\s+/);
+    const twoWords = namaParts.slice(0,2).join("-").toUpperCase();
+    const now = new Date();
+    const tgl = now.getFullYear().toString() +
+                String(now.getMonth()+1).padStart(2,"0") +
+                String(now.getDate()).padStart(2,"0");
+    return `INV-${twoWords}-${tgl}`;
+  }
+
   document.getElementById("pesanForm").addEventListener("submit", function(e) {
     e.preventDefault();
     const nama = document.getElementById("nama").value;
     const email = document.getElementById("email").value.replace(/\./g, "_");
     const ktp = document.getElementById("ktp").value;
     const telp = document.getElementById("telp").value;
-    const kategori = kategoriEl.value;
+    const kategori = document.getElementById("kategori").value;
     const harga = hargaTiket[kategori];
     const metode = document.getElementById("metode").value;
     const tanggal = new Date().toLocaleString("id-ID");
 
-    if (!metode) {
-      alert("Silakan pilih metode pembayaran terlebih dahulu!");
-      return;
-    }
+    const invoiceCode = generateInvoiceCode(nama);
+    const path = `pemesan/${nama}/${email}/${ktp}/${telp}/${kategori}/${metode}`;
+    db.ref(path).set({ harga, tanggal, invoiceCode })
+      .then(() => {
+        alert("Pesan tiket berhasil!");
 
-    // Cek kuota kategori
-    db.ref("pemesan").once("value").then(snapshot => {
-      let countKategori = 0;
-      snapshot.forEach(namaSnap => {
-        namaSnap.forEach(emailSnap => {
-          emailSnap.forEach(ktpSnap => {
-            ktpSnap.forEach(telpSnap => {
-              telpSnap.forEach(kategoriSnap => {
-                if (kategoriSnap.key === kategori) {
-                  countKategori++;
-                }
-              });
-            });
-          });
-        });
-      });
+        document.getElementById("invoiceCode").innerText = invoiceCode;
+        document.getElementById("eInvoice").innerText = invoiceCode;
+        document.getElementById("eNama").innerText = nama;
+        document.getElementById("ticketType").innerText = kategori;
+        document.getElementById("eKategori").innerText = kategori;
 
-      if (countKategori >= 50) {
-        alert(`Kuota untuk ${kategori} sudah habis (50 tiket). Silakan pilih kategori lain.`);
-        return;
-      }
+        document.getElementById("qrcode").innerHTML = "";
+        new QRCode(document.getElementById("qrcode"), { text: invoiceCode, width: 100, height: 100 });
 
-      // Simpan data jika kuota masih ada
-      const path = `pemesan/${nama}/${email}/${ktp}/${telp}/${kategori}/${metode}`;
-      db.ref(path).set({ tanggal })
-        .then(() => {
-          alert("Pesan tiket berhasil!");
-          document.getElementById("eNama").innerText = nama;
-          document.getElementById("eEmail").innerText = email.replace(/_/g, ".");
-          document.getElementById("eKTP").innerText = ktp;
-          document.getElementById("eTelp").innerText = telp;
-          document.getElementById("eKategori").innerText = kategori;
-          document.getElementById("eHarga").innerText = harga;
-          document.getElementById("eMetode").innerText = metode;
-          document.getElementById("eTanggal").innerText = tanggal;
+        document.getElementById("waButton").onclick = function() {
+          const pesan = `Halo panitia, saya ingin konfirmasi.\n\nNama: ${nama}\nInvoice: ${invoiceCode}`;
+          window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`, "_blank");
+        };
 
-          const waMessage = `Halo, saya ingin konfirmasi pemesanan tiket:%0ANama: ${nama}%0AEmail: ${email.replace(/_/g, ".")}%0AKTP: ${ktp}%0ATelp: ${telp}%0AKategori: ${kategori}%0AHarga: ${harga}%0AMetode: ${metode}%0ATanggal: ${tanggal}`;
-          document.getElementById("btnWhatsapp").href = `https://wa.me/6285855094087?text=${waMessage}`;
-
-          document.getElementById("eticketSection").style.display = "block";
-          document.getElementById("formSection").style.display = "none";
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        })
-        .catch(err => alert("Gagal menyimpan data: " + err.message));
-    });
+        document.getElementById("eticketSection").style.display = "block";
+        document.getElementById("formSection").style.display = "none";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      })
+      .catch(err => alert("Gagal menyimpan data: " + err.message));
   });
 </script>
 
