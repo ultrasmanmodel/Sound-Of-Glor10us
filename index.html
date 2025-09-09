@@ -98,7 +98,7 @@
 
 <!-- E-Ticket Section -->
 <div id="eticketSection" class="py-6 px-2 sm:px-4 bg-gray-50 min-h-screen hidden">
-  <div class="w-full max-w-5xl bg-white shadow-lg rounded-lg border border-gray-200 mx-auto">
+  <div class="max-w-5xl w-full bg-white shadow-lg rounded-lg border border-gray-200 mx-auto">
     <!-- Header -->
     <header class="flex justify-between bg-[#1E365D] text-white px-4 sm:px-6 py-3 rounded-t-lg font-semibold text-xs sm:text-sm tracking-wide">
       <div>E-Ticket</div>
@@ -106,40 +106,42 @@
     </header>
 
     <!-- Logo -->
-    <section class="grid place-items-center py-4 sm:py-6 border-b border-gray-300 px-2 text-center">
+    <section class="grid place-items-center py-6 border-b border-gray-300 px-3 text-center">
       <h1 class="logo-text select-none">ANNIVERSARY 1 DEKADE ULTRAS MAN MODEL</h1>
     </section>
 
-    <!-- Info Event + Gambar -->
-    <section class="flex flex-col md:flex-row px-4 sm:px-6 py-4 gap-4 md:gap-10 border-b border-gray-300">
-      <div class="flex-1 space-y-2 text-sm text-gray-800">
+    <!-- Info Event + Poster -->
+    <section class="flex flex-col md:flex-row px-4 sm:px-6 py-4 gap-6 border-b border-gray-300">
+      <div class="flex-1 space-y-3 text-sm text-gray-800">
         <div class="flex items-center gap-2">📅 <span>15 November 2025</span></div>
         <div class="flex items-center gap-2">📍 <span>Gedung Baresta Cafe</span></div>
         <div class="flex items-center gap-2">🎫 <span>Kategori: <strong id="eKategori"></strong></span></div>
       </div>
-      <div class="w-full md:w-80 rounded-lg overflow-hidden border border-gray-300 shadow-inner">
+      <div class="w-full md:w-96 rounded-lg overflow-hidden border border-gray-300 shadow-inner">
         <img src="ticket.png" alt="Poster Event" class="w-full h-48 md:h-full object-cover" />
       </div>
     </section>
 
-    <!-- Detail -->
-    <section class="px-4 sm:px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-gray-300">
-      <div class="border border-gray-300 rounded-lg p-4 flex flex-col items-center text-center bg-gray-50 shadow-sm">
-        <h2 class="font-semibold text-base mb-3" id="ticketType">Kategori Tiket</h2>
+    <!-- Detail Ticket -->
+    <section class="px-4 sm:px-6 py-6 flex flex-col md:flex-row gap-6 border-b border-gray-300">
+      <!-- QR + Kategori -->
+      <div class="flex-1 border border-gray-300 rounded-lg p-6 flex flex-col items-center max-w-xs mx-auto text-center bg-gray-50 shadow-sm">
+        <h2 class="font-semibold text-base sm:text-lg mb-4" id="ticketType">Kategori Tiket</h2>
         <div class="w-32 h-32 sm:w-40 sm:h-40 mb-4" id="qrcode"></div>
         <span class="font-mono text-gray-700 text-xs sm:text-sm select-all break-all" id="invoiceCode">KODE-INVOICE</span>
       </div>
-      <div class="border border-gray-300 rounded-lg p-4 bg-gray-50 shadow-sm">
+      <!-- Info Pemesan -->
+      <div class="flex-1 border border-gray-300 rounded-lg p-6 bg-gray-50 shadow-sm max-w-md mx-auto">
         <p class="font-semibold text-sm sm:text-base">Nama Pemesan</p>
-        <p class="mb-3 text-sm sm:text-base" id="eNama">Nama Pengguna</p>
+        <p class="mb-4 text-sm sm:text-base" id="eNama">Nama Pengguna</p>
         <p class="font-semibold text-sm sm:text-base">Kode Tagihan</p>
         <p class="select-all text-sm sm:text-base break-all" id="eInvoice">Kode Tagihan</p>
       </div>
     </section>
 
-    <!-- S&K -->
+    <!-- Syarat & Ketentuan -->
     <section class="px-4 sm:px-6 py-6">
-      <h3 class="font-bold text-base sm:text-lg mb-2">Syarat & Ketentuan:</h3>
+      <h3 class="font-bold text-base sm:text-lg mb-3">Syarat & Ketentuan:</h3>
       <ul class="list-disc list-inside space-y-2 text-gray-700 text-xs sm:text-sm md:text-base">
         <li>1 tiket berlaku untuk 1 orang dan 1 hari sesuai tanggal acara.</li>
         <li>Tunjukkan e-ticket untuk menukarkan gelang fisik di lokasi penukaran.</li>
