@@ -103,6 +103,19 @@
     img.bukti-thumb:hover {
       box-shadow: 0 0 8px #666;
     }
+    button {
+      padding: 6px 12px;
+      background-color: #d9534f;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #c9302c;
+    }
 
     /* Modal Styles */
     .modal {
@@ -188,6 +201,7 @@
           <th>Metode Pembayaran</th>
           <th>Waktu Pemesanan</th>
           <th>Bukti Pembayaran</th>
+          <th>Hapus</th>
         </tr>
       </thead>
       <tbody id="tabelPemesan"></tbody>
@@ -289,7 +303,8 @@
                     waktu,
                     tanggal: data.tanggal,
                     buktiPembayaran: data.buktiPembayaran || null,
-                    invoiceCode: data.invoiceCode || "-"
+                    invoiceCode: data.invoiceCode || "-",
+                    path: `${nama}/${emailSnap.key}/${ktp}/${telp}/${kategori}/${metode}`
                   });
                 });
               });
@@ -299,7 +314,7 @@
       });
 
       if (list.length === 0) {
-        tabel.innerHTML = '<tr><td colspan="11">Belum ada data pemesanan.</td></tr>';
+        tabel.innerHTML = '<tr><td colspan="12">Belum ada data pemesanan.</td></tr>';
         return;
       }
 
@@ -312,6 +327,7 @@
         if (item.buktiPembayaran) {
           buktiHtml = `<img src="${item.buktiPembayaran}" alt="Bukti Pembayaran" class="bukti-thumb" data-src="${item.buktiPembayaran}" />`;
         }
+        const hapusBtn = item.buktiPembayaran ? `<button onclick="hapusData('${item.path}')">Hapus</button>` : '';
         return `
           <tr>
             <td>${i + 1}</td>
@@ -325,6 +341,7 @@
             <td>${item.metode}</td>
             <td>${item.tanggal}</td>
             <td>${buktiHtml}</td>
+            <td>${hapusBtn}</td>
           </tr>
         `;
       }).join('');
@@ -336,9 +353,21 @@
         });
       });
     }, error => {
-      tabel.innerHTML = '<tr><td colspan="11">Error memuat data.</td></tr>';
+      tabel.innerHTML = '<tr><td colspan="12">Error memuat data.</td></tr>';
       console.error(error);
     });
+  }
+
+  function hapusData(path) {
+    if (confirm('Yakin ingin menghapus data pemesanan ini?')) {
+      db.ref('pemesan/' + path).remove()
+        .then(() => {
+          alert('Data berhasil dihapus.');
+        })
+        .catch(error => {
+          alert('Gagal menghapus data: ' + error.message);
+        });
+    }
   }
 
   // Modal handling
