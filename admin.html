@@ -64,7 +64,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 1100px;
+      min-width: 1200px;
     }
     th, td {
       padding: 10px;
@@ -72,11 +72,11 @@
       text-align: center;
       vertical-align: middle;
       font-size: 14px;
+      white-space: nowrap;
     }
     th {
       background: #7a7a7b;
       color: #fff;
-      white-space: nowrap;
     }
     tr:nth-child(even) { background: #f9f9f9; }
     tr:hover { background: #e6e6e6; }
@@ -172,11 +172,13 @@
 <!-- PANEL ADMIN -->
 <div class="data-container" id="adminPanel" style="display:none;">
   <h2>Data Pemesan Tiket 1 Dekade Ultras Manmodel</h2>
+  <input type="text" id="searchInvoice" placeholder="Cari Nomor Invoice..." style="width: 100%; padding: 8px; margin-bottom: 12px; font-size: 14px;">
   <div class="table-container">
     <table>
       <thead>
         <tr>
           <th>No</th>
+          <th>Nomor Invoice</th>
           <th>Nama Lengkap</th>
           <th>Email</th>
           <th>No KTP</th>
@@ -286,7 +288,8 @@
                     harga: hargaTiket[kategori] || "Rp -",
                     waktu,
                     tanggal: data.tanggal,
-                    buktiPembayaran: data.buktiPembayaran || null
+                    buktiPembayaran: data.buktiPembayaran || null,
+                    invoiceCode: data.invoiceCode || "-"
                   });
                 });
               });
@@ -296,7 +299,7 @@
       });
 
       if (list.length === 0) {
-        tabel.innerHTML = '<tr><td colspan="10">Belum ada data pemesanan.</td></tr>';
+        tabel.innerHTML = '<tr><td colspan="11">Belum ada data pemesanan.</td></tr>';
         return;
       }
 
@@ -307,12 +310,12 @@
       tabel.innerHTML = list.map((item, i) => {
         let buktiHtml = 'Tidak ada';
         if (item.buktiPembayaran) {
-          // Gunakan data base64 sebagai src gambar, tambahkan event onclick untuk modal
           buktiHtml = `<img src="${item.buktiPembayaran}" alt="Bukti Pembayaran" class="bukti-thumb" data-src="${item.buktiPembayaran}" />`;
         }
         return `
           <tr>
             <td>${i + 1}</td>
+            <td>${item.invoiceCode}</td>
             <td>${item.nama}</td>
             <td>${item.email}</td>
             <td>${item.ktp}</td>
@@ -333,7 +336,7 @@
         });
       });
     }, error => {
-      tabel.innerHTML = '<tr><td colspan="10">Error memuat data.</td></tr>';
+      tabel.innerHTML = '<tr><td colspan="11">Error memuat data.</td></tr>';
       console.error(error);
     });
   }
@@ -360,6 +363,19 @@
       modalImg.src = '';
     }
   }
+
+  // Fitur pencarian invoice
+  document.getElementById('searchInvoice').addEventListener('input', function() {
+    const query = this.value.toUpperCase();
+    const rows = tabel.querySelectorAll('tr');
+    rows.forEach(row => {
+      const invoiceCell = row.cells[1]; // kolom invoice index 1
+      if (invoiceCell) {
+        const text = invoiceCell.textContent.toUpperCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      }
+    });
+  });
 </script>
 
 </body>
