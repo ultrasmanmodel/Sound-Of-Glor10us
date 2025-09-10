@@ -26,23 +26,66 @@
     .eticket-logo { font-weight: 700; font-size: 15px; line-height: 1; font-family: Arial, Helvetica, sans-serif; }
     .eticket-logo span.dark-blue { background: #152959; margin-right: 2px; padding: 2px 6px; color: #fff; font-weight: 900; border-radius: 2px; }
     .eticket-logo span.orange { background: #f59a24; margin-left: 2px; padding: 2px 6px; color: #222; font-weight: 700; border-radius: 2px; }
-    .eticket-main { display: flex; margin-top: 24px; border-bottom: 1px dotted #ccc; gap: 16px; flex-wrap: wrap; }
-    .eticket-left { flex: 1 1 200px; display: flex; gap: 12px; align-items: flex-start; }
-    .eticket-left img { width: 170px; max-width: 100%; border: 2px solid #f4654a; object-fit: cover; }
-    .eticket-center { flex: 1 1 350px; font-size: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px 30px; margin-left: 12px; margin-top: -6px; }
+
+    .eticket-main {
+      display: flex;
+      margin-top: 24px;
+      border-bottom: 1px dotted #ccc;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .eticket-left { flex: 0 0 160px; }
+    .eticket-left img { width: 100%; max-width: 160px; border: 2px solid #f4654a; object-fit: cover; }
+
+    .eticket-center {
+      flex: 1 1 300px;
+      font-size: 12px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px 20px;
+      margin-left: 12px;
+    }
     .info-group { line-height: 1.2; }
     .info-label { font-weight: 700; font-size: 11px; color: #444; margin-bottom: 2px; }
     .info-value { font-weight: 600; color: #222; font-size: 13px; word-break: break-word; }
-    .eticket-right { flex: 0 0 190px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    .eticket-right img { width: 140px; height: 140px; object-fit: contain; }
+
+    .eticket-right {
+      flex: 0 0 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .eticket-right img { width: 120px; height: 120px; object-fit: contain; }
     .qr-code-number { font-size: 13px; font-weight: 700; color: #d19a27; letter-spacing: 0.06em; word-break: break-word; text-align: center; font-family: Consolas, monospace; }
+
     .eticket-actions { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
     .eticket-actions button, .eticket-actions a { padding: 10px; font-weight: 600; border-radius: 5px; border: none; text-align: center; cursor: pointer; text-decoration: none; }
     .btn-print { background-color: #3b82f6; color: white; }
     .btn-wa { background-color: #16a34a; color: white; }
+
     .eticket-terms { margin-top: 20px; padding-top: 10px; border-top: 1px dotted #c0c0c0; font-size: 12px; line-height: 1.4; color: #3b3b3b; }
     .eticket-terms h2 { font-size: 14px; margin-bottom: 10px; font-weight: 700; color: #152959; }
-    @media (max-width: 640px) { .eticket-main { flex-direction: column; gap: 18px; } .eticket-right { align-self: center; margin-top: 12px; } .eticket-center { margin-left: 0; grid-template-columns: 1fr; } }
+
+    /* 🔹 RESPONSIVE FIX */
+    @media (max-width: 640px) {
+      .eticket-main {
+        flex-wrap: nowrap;   /* jangan turun */
+        flex-direction: row; /* tetap baris */
+        align-items: flex-start;
+      }
+      .eticket-left { flex: 0 0 100px; }
+      .eticket-left img { max-width: 100px; }
+      .eticket-center {
+        grid-template-columns: 1fr;
+        margin-left: 8px;
+      }
+      .eticket-right { flex: 0 0 100px; }
+      .eticket-right img { width: 100px; height: 100px; }
+      .qr-code-number { font-size: 11px; }
+    }
   </style>
 </head>
 <body class="bg-gray-100">
@@ -135,6 +178,7 @@
       <p>Lokasi penukaran di belakang pasar singonoyo (warung mak'e).</p>
       <p>Penyalahgunaan tiket akan berakibat pembatalan tanpa pengembalian dana.</p>
     </section>
+  </section>
 </div>
 
 <script>
