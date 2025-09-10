@@ -173,7 +173,7 @@
     <!-- Tombol Cetak & WA -->
     <div class="eticket-actions">
       <button class="btn-print" onclick="window.print()">Cetak E-Ticket</button>
-      <a id="waButton" class="btn-wa" target="_blank">Konfirmasi via WhatsApp</a>
+      <a id="waButton" class="btn-wa" target="_blank">Konfirmasi via WhatsApp Panitia</a>
     </div>
 
     <section class="eticket-terms mt-4">
@@ -183,6 +183,7 @@
       <p>Lokasi penukaran di belakang pasar singonoyo (warung mak'e).</p>
       <p>Penyalahgunaan tiket akan berakibat pembatalan tanpa pengembalian dana.</p>
       <p>Siapa pun yang melakukan kecurangan bakal di pukul di tempat oleh panitia penyelenggara.</p>
+       <p>Setelah mencetak e-ticket diharapkan konfirmasi ke whastapp panitia.</p>
     </section>
   </section>
 </div>
@@ -279,7 +280,7 @@
           const waMessage = `Halo panitia, saya ingin konfirmasi tiket.\nNama: ${nama}\nInvoice: ${invoiceCode}`;
           const waBtn = document.getElementById("waButton");
           waBtn.href = `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`;
-          waBtn.innerText = "Konfirmasi via WhatsApp";
+          waBtn.innerText = "Konfirmasi via WhatsApp Panitia";
         })
         .catch(err => alert("Gagal menyimpan data: " + err.message));
     };
@@ -289,5 +290,3 @@
 
 </body>
 </html>
-
-
