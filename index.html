@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pemesanan Tiket Anniversary 1 Dekade Ultras Manmodel</title>
 
   <!-- Tailwind CSS -->
@@ -15,35 +15,34 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
-  <!-- QR Code Generator -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
   <style>
-    .logo-text {
-      font-family: 'Chakra Petch', sans-serif;
-      font-weight: 700;
-      font-size: 1.6rem;
-      color: #8aa3eb;
-      text-shadow: 2px 2px 3px #574fc9, -2px -2px 3px #d9dcff;
-      letter-spacing: 0.15em;
-      text-align: center;
-    }
-    .qr-wrapper {
-      aspect-ratio: 1 / 1;
-    }
-    @media print {
-      body { background: white !important; }
-      #eticketSection {
-        padding: 0 !important;
-      }
-      #eticketSection .ticket-card {
-        border: 1px solid #ccc;
-        box-shadow: none !important;
-      }
-      .print\:hidden {
-        display: none !important;
-      }
-    }
+    body { background: #f3f4f6; }
+    .logo-text { font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 1.6rem; color: #8aa3eb; text-shadow: 2px 2px 3px #574fc9, -2px -2px 3px #d9dcff; letter-spacing: 0.15em; text-align: center; }
+    @media print { body { background: white !important; } .print\:hidden { display: none !important; } }
+
+    /* E-Ticket */
+    .eticket-container { max-width: 900px; margin: 0 auto; border: 1px dotted #c0c0c0; padding: 12px 24px 32px 24px; background: #fff; }
+    .eticket-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px dotted #c0c0c0; font-size: 13px; color: #404040; }
+    .eticket-logo { font-weight: 700; font-size: 15px; line-height: 1; font-family: Arial, Helvetica, sans-serif; }
+    .eticket-logo span.dark-blue { background: #152959; margin-right: 2px; padding: 2px 6px; color: #fff; font-weight: 900; border-radius: 2px; }
+    .eticket-logo span.orange { background: #f59a24; margin-left: 2px; padding: 2px 6px; color: #222; font-weight: 700; border-radius: 2px; }
+    .eticket-main { display: flex; margin-top: 24px; border-bottom: 1px dotted #ccc; gap: 16px; flex-wrap: wrap; }
+    .eticket-left { flex: 1 1 200px; display: flex; gap: 12px; align-items: flex-start; }
+    .eticket-left img { width: 170px; max-width: 100%; border: 2px solid #f4654a; object-fit: cover; }
+    .eticket-center { flex: 1 1 350px; font-size: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px 30px; margin-left: 12px; margin-top: -6px; }
+    .info-group { line-height: 1.2; }
+    .info-label { font-weight: 700; font-size: 11px; color: #444; margin-bottom: 2px; }
+    .info-value { font-weight: 600; color: #222; font-size: 13px; word-break: break-word; }
+    .eticket-right { flex: 0 0 190px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .eticket-right img { width: 140px; height: 140px; object-fit: contain; }
+    .qr-code-number { font-size: 13px; font-weight: 700; color: #d19a27; letter-spacing: 0.06em; word-break: break-word; text-align: center; font-family: Consolas, monospace; }
+    .eticket-actions { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .eticket-actions button, .eticket-actions a { padding: 10px; font-weight: 600; border-radius: 5px; border: none; text-align: center; cursor: pointer; text-decoration: none; }
+    .btn-print { background-color: #3b82f6; color: white; }
+    .btn-wa { background-color: #16a34a; color: white; }
+    .eticket-terms { margin-top: 20px; padding-top: 10px; border-top: 1px dotted #c0c0c0; font-size: 12px; line-height: 1.4; color: #3b3b3b; }
+    .eticket-terms h2 { font-size: 14px; margin-bottom: 10px; font-weight: 700; color: #152959; }
+    @media (max-width: 640px) { .eticket-main { flex-direction: column; gap: 18px; } .eticket-right { align-self: center; margin-top: 12px; } .eticket-center { margin-left: 0; grid-template-columns: 1fr; } }
   </style>
 </head>
 <body class="bg-gray-100">
@@ -82,7 +81,6 @@
       <div id="hargaInfo" class="mt-2 text-sm text-blue-600 font-semibold">Harga: -</div>
     </div>
 
-    <!-- Info Pembayaran -->
     <div class="bg-gray-50 p-4 border rounded mt-4">
       <h4 class="font-semibold mb-2">Metode Pembayaran</h4>
       <table class="text-sm w-full mb-2">
@@ -94,93 +92,60 @@
     </div>
 
     <input type="hidden" id="metode" value="BCA - 8640910942 (MUHAMMAD AJI YOGA PRATAMA)">
-
     <button type="submit" class="w-full bg-blue-700 text-white py-2 font-semibold rounded hover:bg-blue-800">Pesan Tiket</button>
   </form>
 </div>
 
 <!-- E-Ticket Section -->
-<div id="eticketSection" class="py-6 px-2 sm:px-4 bg-gray-50 min-h-screen hidden">
-  <div class="ticket-card max-w-3xl w-full bg-white shadow-lg rounded-lg border border-gray-300 mx-auto">
-    
-    <!-- Header -->
-    <header class="flex justify-between bg-[#1E365D] text-white px-4 sm:px-6 py-3 font-semibold text-sm tracking-wide">
-      <div>E-Ticket</div>
-      <div>Ticket 1 of 1</div>
+<div id="eticketSection" class="hidden">
+  <section class="eticket-container">
+    <header class="eticket-header">
+      <div class="eticket-logo"><span class="dark-blue">1 Dekade</span><span class="orange">Ultras Manmodel</span></div>
+      <div class="e-ticket">E-Ticket</div>
     </header>
 
-    <!-- Logo -->
-    <section class="py-4 border-b border-gray-300">
-      <h1 class="logo-text">ANNIVERSARY 1 DEKADE ULTRAS MAN MODEL</h1>
+    <section class="eticket-main">
+      <div class="eticket-left">
+        <img id="posterImage" src="ultras.jpg" alt="Poster Event" />
+      </div>
+      <div class="eticket-center">
+        <div class="info-group"><div class="info-label">Nomor Transaksi</div><div class="info-value" id="eInvoice">INV-XXXX</div></div>
+        <div class="info-group"><div class="info-label">Harga</div><div class="info-value" id="eHarga">Rp -</div></div>
+        <div class="info-group"><div class="info-label">Lokasi Acara</div><div class="info-value">Gedung Baresta Cafe</div></div>
+        <div class="info-group"><div class="info-label">Nama Customer</div><div class="info-value" id="eNama">Nama Pengguna</div></div>
+        <div class="info-group"><div class="info-label">Kategori</div><div class="info-value" id="eKategori">-</div></div>
+        <div class="info-group"><div class="info-label">Tanggal Acara</div><div class="info-value">15 November 2025</div></div>
+      </div>
+      <aside class="eticket-right">
+        <img id="qrCodeImage" src="1dekade.png" alt="QR Code" />
+        <div class="qr-code-number" id="invoiceCode">KODE-INVOICE</div>
+      </aside>
     </section>
 
-    <!-- Event Info -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 py-5 border-b border-gray-300">
-      <!-- Kiri -->
-      <div class="flex flex-col justify-center space-y-3 text-gray-800 text-sm md:text-base">
-        <div class="flex items-center gap-3">📅 <span>15 November 2025</span></div>
-        <div class="flex items-center gap-3">📍 <span>Gedung Baresta Cafe</span></div>
-        <div class="flex items-center gap-3">🎫 <span>Kategori: <strong id="eKategori"></strong></span></div>
-      </div>
-      <!-- Poster -->
-      <div class="w-full rounded-lg overflow-hidden border border-gray-300">
-        <img src="ticket.png" alt="Poster Event" class="w-full h-full object-cover" />
-      </div>
-    </section>
-
-    <!-- Detail Pemesanan -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 py-6 border-b border-gray-300">
-      <!-- QR -->
-      <div class="border border-gray-300 rounded-lg p-6 flex flex-col items-center text-center bg-gray-50">
-        <h2 class="font-semibold text-lg mb-4" id="ticketType">Kategori Tiket</h2>
-        <div class="qr-wrapper w-40 mb-4" id="qrcode"></div>
-        <span class="font-mono text-gray-700 text-sm select-all break-all" id="invoiceCode">KODE-INVOICE</span>
-      </div>
-      <!-- Info Pemesan -->
-      <div class="border border-gray-300 rounded-lg p-6 bg-gray-50">
-        <p class="font-semibold text-base">Nama Pemesan</p>
-        <p class="mb-5" id="eNama">Nama Pengguna</p>
-        <p class="font-semibold text-base">Kode Tagihan</p>
-        <p class="select-all break-all" id="eInvoice">Kode Tagihan</p>
-      </div>
-    </section>
-
-    <!-- Terms -->
-    <section class="px-6 py-6">
-      <h3 class="font-bold text-lg mb-3">Syarat & Ketentuan:</h3>
-      <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm md:text-base">
-        <li>1 tiket berlaku untuk 1 orang dan 1 hari sesuai tanggal acara.</li>
-        <li>Tunjukkan e-ticket untuk menukarkan gelang fisik di lokasi penukaran.</li>
-        <li>Lokasi penukaran di belakang pasar singonoyo (warung mak'e).</li>
-        <li>Penyalahgunaan tiket akan berakibat pembatalan tanpa pengembalian dana.</li>
-      </ul>
-    </section>
-
-    <!-- Aksi -->
-    <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 py-6 px-4 print:hidden">
-      <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2 rounded-md font-semibold text-sm">Cetak Tiket</button>
-      <button id="waButton" class="bg-green-600 hover:bg-green-700 text-white px-4 sm:px-5 py-2 rounded-md font-semibold text-sm">
-        Konfirmasi via WhatsApp
-      </button>
+    <!-- Tombol Cetak & WA -->
+    <div class="eticket-actions">
+      <button class="btn-print" onclick="window.print()">Cetak E-Ticket</button>
+      <a id="waButton" class="btn-wa" target="_blank">Konfirmasi via WhatsApp</a>
     </div>
-  </div>
+
+    <section class="eticket-terms mt-4">
+      <h2>Syarat & Ketentuan:</h2>
+      <p>1 tiket berlaku untuk 1 orang dan 1 hari sesuai tanggal acara.</p>
+      <p>Tunjukkan e-ticket untuk menukarkan gelang fisik di lokasi penukaran.</p>
+      <p>Lokasi penukaran di belakang pasar singonoyo (warung mak'e).</p>
+      <p>Penyalahgunaan tiket akan berakibat pembatalan tanpa pengembalian dana.</p>
+    </section>
 </div>
 
 <script>
-  const hargaTiket = {
-    "Pre Sale 1": "Rp 50.000",
-    "Pre Sale 2": "Rp 65.000",
-    "Pre Sale 3": "Rp 75.000"
-  };
-
-  const waNumber = "6285855094087"; // nomor WA panitia
+  const hargaTiket = { "Pre Sale 1": "Rp 50.000", "Pre Sale 2": "Rp 65.000", "Pre Sale 3": "Rp 75.000" };
+  const waNumber = "6285855094087";
 
   document.getElementById('kategori').addEventListener('change', () => {
     const kategori = document.getElementById('kategori').value;
     document.getElementById('hargaInfo').innerText = `Harga: ${hargaTiket[kategori]}`;
   });
 
-  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyD1HWtoCb-EOapsJu7wnOXIXTEtQEOLCZ8",
     authDomain: "satudekade-4b54a.firebaseapp.com",
@@ -197,18 +162,15 @@
     const namaParts = nama.trim().split(/\s+/);
     const twoWords = namaParts.slice(0,2).join("-").toUpperCase();
     const now = new Date();
-    const tgl = now.getFullYear().toString() +
-                String(now.getMonth()+1).padStart(2,"0") +
-                String(now.getDate()).padStart(2,"0");
-    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const tgl = now.getFullYear().toString() + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0");
+    const rand = Math.random().toString(36).substring(2,6).toUpperCase();
     return `INV-${twoWords}-${tgl}-${rand}`;
   }
 
-  document.getElementById("pesanForm").addEventListener("submit", function(e) {
+  document.getElementById("pesanForm").addEventListener("submit", function(e){
     e.preventDefault();
-
     const nama = document.getElementById("nama").value;
-    const email = document.getElementById("email").value.replace(/\./g, "_");
+    const email = document.getElementById("email").value.replace(/\./g,"_");
     const ktp = document.getElementById("ktp").value;
     const telp = document.getElementById("telp").value;
     const kategori = document.getElementById("kategori").value;
@@ -219,39 +181,24 @@
     const invoiceCode = generateInvoiceCode(nama);
     const path = `pemesan/${nama}/${email}/${ktp}/${telp}/${kategori}/${metode}`;
 
-    db.ref(path).set({
-      harga,
-      tanggal,
-      invoiceCode
-    })
-    .then(() => {
-      // Update e-ticket UI
-      document.getElementById("invoiceCode").innerText = invoiceCode;
-      document.getElementById("eInvoice").innerText = invoiceCode;
-      document.getElementById("eNama").innerText = nama;
-      document.getElementById("ticketType").innerText = kategori;
-      document.getElementById("eKategori").innerText = kategori;
+    db.ref(path).set({ harga, tanggal, invoiceCode })
+      .then(() => {
+        document.getElementById("invoiceCode").innerText = invoiceCode;
+        document.getElementById("eInvoice").innerText = invoiceCode;
+        document.getElementById("eNama").innerText = nama;
+        document.getElementById("eHarga").innerText = harga;
+        document.getElementById("eKategori").innerText = kategori;
 
-      // QR Code
-      document.getElementById("qrcode").innerHTML = "";
-      new QRCode(document.getElementById("qrcode"), {
-        text: invoiceCode,
-        width: 150,
-        height: 150
-      });
+        document.getElementById("eticketSection").classList.remove("hidden");
+        document.getElementById("formSection").style.display = "none";
+        window.scrollTo({ top: 0, behavior: "smooth" });
 
-      // WhatsApp button
-      document.getElementById("waButton").onclick = function() {
-        const pesan = `Halo panitia, saya ingin konfirmasi tiket.\n\nNama: ${nama}\nInvoice: ${invoiceCode}`;
-        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`, "_blank");
-      };
-
-      // Tampilkan E-ticket
-      document.getElementById("eticketSection").style.display = "block";
-      document.getElementById("formSection").style.display = "none";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    })
-    .catch(err => alert("Gagal menyimpan data: " + err.message));
+        const waMessage = `Halo panitia, saya ingin konfirmasi tiket.\nNama: ${nama}\nInvoice: ${invoiceCode}`;
+        const waBtn = document.getElementById("waButton");
+        waBtn.href = `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`;
+        waBtn.innerText = "Konfirmasi via WhatsApp";
+      })
+      .catch(err => alert("Gagal menyimpan data: " + err.message));
   });
 </script>
 
