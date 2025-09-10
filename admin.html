@@ -64,7 +64,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 1000px;
+      min-width: 1100px;
     }
     th, td {
       padding: 10px;
@@ -93,6 +93,58 @@
     .logout-btn:hover {
       background: #5e5e5f;
     }
+    img.bukti-thumb {
+      max-height: 80px;
+      cursor: pointer;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      transition: box-shadow 0.3s;
+    }
+    img.bukti-thumb:hover {
+      box-shadow: 0 0 8px #666;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1000;
+      padding-top: 60px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.7);
+    }
+    .modal-content {
+      margin: auto;
+      display: block;
+      max-width: 90%;
+      max-height: 80vh;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      animation: zoomIn 0.3s ease;
+    }
+    @keyframes zoomIn {
+      from {transform: scale(0.7); opacity: 0;}
+      to {transform: scale(1); opacity: 1;}
+    }
+    .modal-close {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      z-index: 1001;
+      transition: color 0.3s;
+    }
+    .modal-close:hover {
+      color: #bbb;
+    }
     @media (max-width: 768px) {
       th, td {
         font-size: 12px;
@@ -100,6 +152,9 @@
       }
       .data-container {
         padding: 10px;
+      }
+      table {
+        min-width: 900px;
       }
     }
   </style>
@@ -130,12 +185,19 @@
           <th>Harga Tiket</th>
           <th>Metode Pembayaran</th>
           <th>Waktu Pemesanan</th>
+          <th>Bukti Pembayaran</th>
         </tr>
       </thead>
       <tbody id="tabelPemesan"></tbody>
     </table>
   </div>
   <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<!-- Modal untuk menampilkan gambar bukti pembayaran -->
+<div id="modalBukti" class="modal">
+  <span class="modal-close" id="modalClose">&times;</span>
+  <img class="modal-content" id="modalImage" alt="Bukti Pembayaran Besar">
 </div>
 
 <script>
@@ -187,6 +249,7 @@
 
   function parseTanggal(str) {
     try {
+      // Format tanggal dari client: "15/11/2025, 14.30.00"
       const parts = str.split(', ');
       const [d, m, y] = parts[0].split('/').map(Number);
       const [hh, mm, ss] = parts[1].split('.').map(Number);
@@ -222,7 +285,8 @@
                     metode,
                     harga: hargaTiket[kategori] || "Rp -",
                     waktu,
-                    tanggal: data.tanggal
+                    tanggal: data.tanggal,
+                    buktiPembayaran: data.buktiPembayaran || null
                   });
                 });
               });
@@ -232,7 +296,7 @@
       });
 
       if (list.length === 0) {
-        tabel.innerHTML = '<tr><td colspan="9">Belum ada data pemesanan.</td></tr>';
+        tabel.innerHTML = '<tr><td colspan="10">Belum ada data pemesanan.</td></tr>';
         return;
       }
 
@@ -240,23 +304,61 @@
       list.sort((a, b) => a.waktu - b.waktu);
 
       // Tampilkan ke tabel
-      tabel.innerHTML = list.map((item, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${item.nama}</td>
-          <td>${item.email}</td>
-          <td>${item.ktp}</td>
-          <td>${item.telp}</td>
-          <td>${item.kategori}</td>
-          <td>${item.harga}</td>
-          <td>${item.metode}</td>
-          <td>${item.tanggal}</td>
-        </tr>
-      `).join('');
+      tabel.innerHTML = list.map((item, i) => {
+        let buktiHtml = 'Tidak ada';
+        if (item.buktiPembayaran) {
+          // Gunakan data base64 sebagai src gambar, tambahkan event onclick untuk modal
+          buktiHtml = `<img src="${item.buktiPembayaran}" alt="Bukti Pembayaran" class="bukti-thumb" data-src="${item.buktiPembayaran}" />`;
+        }
+        return `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${item.nama}</td>
+            <td>${item.email}</td>
+            <td>${item.ktp}</td>
+            <td>${item.telp}</td>
+            <td>${item.kategori}</td>
+            <td>${item.harga}</td>
+            <td>${item.metode}</td>
+            <td>${item.tanggal}</td>
+            <td>${buktiHtml}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Pasang event click pada semua thumbnail gambar bukti pembayaran
+      document.querySelectorAll('img.bukti-thumb').forEach(img => {
+        img.addEventListener('click', () => {
+          openModal(img.getAttribute('data-src'));
+        });
+      });
     }, error => {
-      tabel.innerHTML = '<tr><td colspan="9">Error memuat data.</td></tr>';
+      tabel.innerHTML = '<tr><td colspan="10">Error memuat data.</td></tr>';
       console.error(error);
     });
+  }
+
+  // Modal handling
+  const modal = document.getElementById('modalBukti');
+  const modalImg = document.getElementById('modalImage');
+  const modalClose = document.getElementById('modalClose');
+
+  function openModal(src) {
+    modal.style.display = 'block';
+    modalImg.src = src;
+  }
+
+  modalClose.onclick = function() {
+    modal.style.display = 'none';
+    modalImg.src = '';
+  }
+
+  // Tutup modal jika klik di luar gambar
+  modal.onclick = function(event) {
+    if (event.target === modal) {
+      modal.style.display = 'none';
+      modalImg.src = '';
+    }
   }
 </script>
 
