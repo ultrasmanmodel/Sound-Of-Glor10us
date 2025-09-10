@@ -96,7 +96,7 @@
     <img src="glorious.png" alt="Logo Ultras Manmodel" class="w-full mx-auto">
   </div>
 
-  <form id="pesanForm" class="space-y-4">
+  <form id="pesanForm" class="space-y-4" enctype="multipart/form-data">
     <div>
       <label for="nama" class="font-semibold">Nama Lengkap</label>
       <input type="text" id="nama" required class="w-full p-2 border rounded" />
@@ -132,6 +132,11 @@
         <tr><td class="font-medium">Atas Nama</td><td>: MUHAMMAD AJI YOGA PRATAMA</td></tr>
       </table>
       <p class="text-red-500 text-xs mt-2">Setelah transfer, screenshot bukti pembayaran dan cetak e-ticket lalu konfirmasi ke WhatsApp panitia.</p>
+
+      <!-- UPLOAD FOTO -->
+      <label for="buktiPembayaran" class="font-semibold mt-4 block">Upload Bukti Pembayaran (foto):</label>
+      <input type="file" id="buktiPembayaran" accept="image/*" required class="w-full p-2 border rounded" />
+      <img id="previewBukti" src="" alt="Preview Bukti Pembayaran" class="mt-2 max-h-40 object-contain hidden border rounded" />
     </div>
 
     <input type="hidden" id="metode" value="BCA - 8640910942 (MUHAMMAD AJI YOGA PRATAMA)">
@@ -211,8 +216,35 @@
     return `INV-${twoWords}-${tgl}-${rand}`;
   }
 
+  // Preview gambar bukti pembayaran saat dipilih
+  const buktiInput = document.getElementById('buktiPembayaran');
+  const previewBukti = document.getElementById('previewBukti');
+
+  buktiInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewBukti.src = e.target.result;
+        previewBukti.classList.remove('hidden');
+      }
+      reader.readAsDataURL(file);
+    } else {
+      previewBukti.src = '';
+      previewBukti.classList.add('hidden');
+    }
+  });
+
   document.getElementById("pesanForm").addEventListener("submit", function(e){
     e.preventDefault();
+
+    // Validasi upload foto
+    const buktiFile = buktiInput.files[0];
+    if (!buktiFile) {
+      alert("Mohon upload bukti pembayaran.");
+      return;
+    }
+
     const nama = document.getElementById("nama").value;
     const email = document.getElementById("email").value.replace(/\./g,"_");
     const ktp = document.getElementById("ktp").value;
@@ -225,24 +257,32 @@
     const invoiceCode = generateInvoiceCode(nama);
     const path = `pemesan/${nama}/${email}/${ktp}/${telp}/${kategori}/${metode}`;
 
-    db.ref(path).set({ harga, tanggal, invoiceCode })
-      .then(() => {
-        document.getElementById("invoiceCode").innerText = invoiceCode;
-        document.getElementById("eInvoice").innerText = invoiceCode;
-        document.getElementById("eNama").innerText = nama;
-        document.getElementById("eHarga").innerText = harga;
-        document.getElementById("eKategori").innerText = kategori;
+    // Baca file bukti pembayaran sebagai base64
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const buktiBase64 = event.target.result;
 
-        document.getElementById("eticketSection").classList.remove("hidden");
-        document.getElementById("formSection").style.display = "none";
-        window.scrollTo({ top: 0, behavior: "smooth" });
+      // Simpan data ke Firebase termasuk bukti pembayaran base64
+      db.ref(path).set({ harga, tanggal, invoiceCode, buktiPembayaran: buktiBase64 })
+        .then(() => {
+          document.getElementById("invoiceCode").innerText = invoiceCode;
+          document.getElementById("eInvoice").innerText = invoiceCode;
+          document.getElementById("eNama").innerText = nama;
+          document.getElementById("eHarga").innerText = harga;
+          document.getElementById("eKategori").innerText = kategori;
 
-        const waMessage = `Halo panitia, saya ingin konfirmasi tiket.\nNama: ${nama}\nInvoice: ${invoiceCode}`;
-        const waBtn = document.getElementById("waButton");
-        waBtn.href = `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`;
-        waBtn.innerText = "Konfirmasi via WhatsApp";
-      })
-      .catch(err => alert("Gagal menyimpan data: " + err.message));
+          document.getElementById("eticketSection").classList.remove("hidden");
+          document.getElementById("formSection").style.display = "none";
+          window.scrollTo({ top: 0, behavior: "smooth" });
+
+          const waMessage = `Halo panitia, saya ingin konfirmasi tiket.\nNama: ${nama}\nInvoice: ${invoiceCode}`;
+          const waBtn = document.getElementById("waButton");
+          waBtn.href = `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`;
+          waBtn.innerText = "Konfirmasi via WhatsApp";
+        })
+        .catch(err => alert("Gagal menyimpan data: " + err.message));
+    };
+    reader.readAsDataURL(buktiFile);
   });
 </script>
 
