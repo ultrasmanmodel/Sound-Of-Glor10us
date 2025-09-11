@@ -18,7 +18,10 @@
   <style>
     body { background: #f3f4f6; }
     .logo-text { font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 1.6rem; color: #8aa3eb; text-shadow: 2px 2px 3px #574fc9, -2px -2px 3px #d9dcff; letter-spacing: 0.15em; text-align: center; }
-    @media print { body { background: white !important; } .print\:hidden { display: none !important; } }
+    @media print { 
+      body { background: white !important; } 
+      .print\:hidden { display: none !important; } 
+    }
 
     /* E-Ticket */
     .eticket-container { max-width: 900px; margin: 0 auto; border: 1px dotted #c0c0c0; padding: 12px 24px 32px 24px; background: #fff; }
@@ -171,7 +174,7 @@
     </section>
 
     <!-- Tombol Cetak & WA -->
-    <div class="eticket-actions">
+    <div class="eticket-actions print:hidden">
       <button class="btn-print" onclick="window.print()">Cetak E-Ticket</button>
       <a id="waButton" class="btn-wa" target="_blank">Konfirmasi via WhatsApp Panitia</a>
     </div>
@@ -183,7 +186,7 @@
       <p>Lokasi penukaran di belakang pasar singonoyo (warung mak'e).</p>
       <p>Penyalahgunaan tiket akan berakibat pembatalan tanpa pengembalian dana.</p>
       <p>Siapa pun yang melakukan kecurangan bakal di pukul di tempat oleh panitia penyelenggara.</p>
-       <p>Setelah mencetak e-ticket diharapkan konfirmasi ke whastapp panitia.</p>
+      <p class="print:hidden">Setelah mencetak e-ticket diharapkan konfirmasi ke whastapp panitia.</p>
     </section>
   </section>
 </div>
