@@ -54,16 +54,6 @@
     .info-label { font-weight: 700; font-size: 11px; color: #444; margin-bottom: 2px; }
     .info-value { font-weight: 600; color: #222; font-size: 13px; word-break: break-word; }
 
-    .eticket-right {
-      flex: 0 0 140px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-    .eticket-right img { width: 120px; height: 120px; object-fit: contain; }
-    .qr-code-number { font-size: 13px; font-weight: 700; color: #d19a27; letter-spacing: 0.06em; word-break: break-word; text-align: center; font-family: Consolas, monospace; }
-
     .eticket-actions { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
     .eticket-actions button, .eticket-actions a { padding: 10px; font-weight: 600; border-radius: 5px; border: none; text-align: center; cursor: pointer; text-decoration: none; }
     .btn-print { background-color: #3b82f6; color: white; }
@@ -72,11 +62,11 @@
     .eticket-terms { margin-top: 20px; padding-top: 10px; border-top: 1px dotted #c0c0c0; font-size: 12px; line-height: 1.4; color: #3b3b3b; }
     .eticket-terms h2 { font-size: 14px; margin-bottom: 10px; font-weight: 700; color: #152959; }
 
-    /* 🔹 RESPONSIVE FIX */
+    /* RESPONSIVE */
     @media (max-width: 640px) {
       .eticket-main {
-        flex-wrap: nowrap;   /* jangan turun */
-        flex-direction: row; /* tetap baris */
+        flex-wrap: nowrap;
+        flex-direction: row;
         align-items: flex-start;
       }
       .eticket-left { flex: 0 0 100px; }
@@ -85,9 +75,6 @@
         grid-template-columns: 1fr;
         margin-left: 8px;
       }
-      .eticket-right { flex: 0 0 100px; }
-      .eticket-right img { width: 100px; height: 100px; }
-      .qr-code-number { font-size: 11px; }
     }
   </style>
 </head>
@@ -96,7 +83,7 @@
 <!-- Form Pemesanan -->
 <div class="container max-w-xl mx-auto p-4 bg-white shadow rounded mt-6" id="formSection">
   <div class="text-center mb-6">
-    <img src="glorious.png" alt="Logo Ultras Manmodel" class="w-full mx-auto">
+    <img src="glorious.png" alt="Logo Ultras Manmodel" class="w-full mx-auto" />
   </div>
 
   <form id="pesanForm" class="space-y-4" enctype="multipart/form-data">
@@ -136,13 +123,12 @@
       </table>
       <p class="text-red-500 text-xs mt-2">Setelah transfer, screenshot bukti pembayaran lalu upload bukti pembayaran dibawah.</p>
 
-      <!-- UPLOAD FOTO -->
       <label for="buktiPembayaran" class="font-semibold mt-4 block">Upload Bukti Pembayaran (foto):</label>
       <input type="file" id="buktiPembayaran" accept="image/*" required class="w-full p-2 border rounded" />
       <img id="previewBukti" src="" alt="Preview Bukti Pembayaran" class="mt-2 max-h-40 object-contain hidden border rounded" />
     </div>
 
-    <input type="hidden" id="metode" value="BCA - 8640910942 (MUHAMMAD AJI YOGA PRATAMA)">
+    <input type="hidden" id="metode" value="BCA - 8640910942 (MUHAMMAD AJI YOGA PRATAMA)" />
     <button type="submit" class="w-full bg-blue-700 text-white py-2 font-semibold rounded hover:bg-blue-800">Pesan Tiket</button>
   </form>
 </div>
@@ -167,13 +153,8 @@
         <div class="info-group"><div class="info-label">Kategori</div><div class="info-value" id="eKategori">-</div></div>
         <div class="info-group"><div class="info-label">Tanggal Acara</div><div class="info-value">15 November 2025</div></div>
       </div>
-      <aside class="eticket-right">
-        <img id="qrCodeImage" src="1dekade.png" alt="QR Code" />
-        <div class="qr-code-number" id="invoiceCode">KODE-INVOICE</div>
-      </aside>
     </section>
 
-    <!-- Tombol Cetak & WA -->
     <div class="eticket-actions print:hidden">
       <button class="btn-print" onclick="window.print()">Cetak E-Ticket</button>
       <a id="waButton" class="btn-wa" target="_blank">Konfirmasi via WhatsApp Panitia</a>
@@ -186,7 +167,7 @@
       <p>Lokasi penukaran di belakang pasar singonoyo (warung mak'e).</p>
       <p>Penyalahgunaan tiket akan berakibat pembatalan tanpa pengembalian dana.</p>
       <p>Siapa pun yang melakukan kecurangan bakal di pukul di tempat oleh panitia penyelenggara.</p>
-      <p class="print:hidden">Setelah mencetak e-ticket diharapkan konfirmasi ke whastapp panitia.</p>
+      <p class="print:hidden">Setelah mencetak e-ticket diharapkan konfirmasi ke whatsapp panitia.</p>
     </section>
   </section>
 </div>
@@ -197,7 +178,7 @@
 
   document.getElementById('kategori').addEventListener('change', () => {
     const kategori = document.getElementById('kategori').value;
-    document.getElementById('hargaInfo').innerText = `Harga: ${hargaTiket[kategori]}`;
+    document.getElementById('hargaInfo').innerText = `Harga: ${hargaTiket[kategori] || '-'}`;
   });
 
   const firebaseConfig = {
@@ -214,22 +195,21 @@
 
   function generateInvoiceCode(nama) {
     const namaParts = nama.trim().split(/\s+/);
-    const twoWords = namaParts.slice(0,2).join("-").toUpperCase();
+    const twoWords = namaParts.slice(0, 2).join("-").toUpperCase();
     const now = new Date();
-    const tgl = now.getFullYear().toString() + String(now.getMonth()+1).padStart(2,"0") + String(now.getDate()).padStart(2,"0");
-    const rand = Math.random().toString(36).substring(2,6).toUpperCase();
+    const tgl = now.getFullYear().toString() + String(now.getMonth() + 1).padStart(2, "0") + String(now.getDate()).padStart(2, "0");
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
     return `INV-${twoWords}-${tgl}-${rand}`;
   }
 
-  // Preview gambar bukti pembayaran saat dipilih
   const buktiInput = document.getElementById('buktiPembayaran');
   const previewBukti = document.getElementById('previewBukti');
 
-  buktiInput.addEventListener('change', function() {
+  buktiInput.addEventListener('change', function () {
     const file = this.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         previewBukti.src = e.target.result;
         previewBukti.classList.remove('hidden');
       }
@@ -240,37 +220,46 @@
     }
   });
 
-  document.getElementById("pesanForm").addEventListener("submit", function(e){
+  document.getElementById("pesanForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
-    // Validasi upload foto
     const buktiFile = buktiInput.files[0];
     if (!buktiFile) {
       alert("Mohon upload bukti pembayaran.");
       return;
     }
 
-    const nama = document.getElementById("nama").value;
-    const email = document.getElementById("email").value.replace(/\./g,"_");
-    const ktp = document.getElementById("ktp").value;
-    const telp = document.getElementById("telp").value;
+    const nama = document.getElementById("nama").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const ktp = document.getElementById("ktp").value.trim();
+    const telp = document.getElementById("telp").value.trim();
     const kategori = document.getElementById("kategori").value;
-    const harga = hargaTiket[kategori];
+    const harga = hargaTiket[kategori] || "-";
     const metode = document.getElementById("metode").value;
-    const tanggal = new Date().toLocaleString("id-ID");
+    const timestamp = new Date().toISOString();
 
     const invoiceCode = generateInvoiceCode(nama);
-    const path = `pemesan/${nama}/${email}/${ktp}/${telp}/${kategori}/${metode}`;
 
-    // Baca file bukti pembayaran sebagai base64
     const reader = new FileReader();
-    reader.onload = function(event) {
+    reader.onload = function (event) {
       const buktiBase64 = event.target.result;
 
-      // Simpan data ke Firebase termasuk bukti pembayaran base64
-      db.ref(path).set({ harga, tanggal, invoiceCode, buktiPembayaran: buktiBase64 })
+      const dataToSave = {
+        nama,
+        email,
+        ktp,
+        telepon: telp,
+        kategori,
+        harga,
+        metode,
+        timestamp,
+        invoice: invoiceCode,
+        bukti: buktiBase64
+      };
+
+      db.ref('pemesanan/' + invoiceCode).set(dataToSave)
         .then(() => {
-          document.getElementById("invoiceCode").innerText = invoiceCode;
+          // Update UI e-ticket
           document.getElementById("eInvoice").innerText = invoiceCode;
           document.getElementById("eNama").innerText = nama;
           document.getElementById("eHarga").innerText = harga;
