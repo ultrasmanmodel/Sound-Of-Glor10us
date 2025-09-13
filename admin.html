@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Admin - Data Pemesan Tiket</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <style>
@@ -54,6 +54,24 @@
     .data-container {
       padding: 20px 40px;
     }
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 20px;
+    }
+    .nav-tabs button {
+      padding: 10px 20px;
+      border: none;
+      background: #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .nav-tabs button.active {
+      background: #7a7a7b;
+      color: #fff;
+    }
     .table-container {
       overflow-x: auto;
       background: #fff;
@@ -103,23 +121,13 @@
     img.bukti-thumb:hover {
       box-shadow: 0 0 8px #666;
     }
-    button {
-      padding: 6px 12px;
-      background-color: #d9534f;
-      color: white;
-      border: none;
-      border-radius: 4px;
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
       cursor: pointer;
-      font-size: 13px;
-      transition: background-color 0.3s;
     }
-    button:hover {
-      background-color: #c9302c;
-    }
-
-    /* Modal Styles */
     .modal {
-      display: none; /* Hidden by default */
+      display: none;
       position: fixed;
       z-index: 1000;
       padding-top: 60px;
@@ -177,43 +185,78 @@
 <!-- LOGIN ADMIN -->
 <div class="login-container" id="loginForm">
   <h2>Login Admin</h2>
-  <input type="text" id="username" placeholder="Masukkan Username" autocomplete="off">
-  <input type="password" id="password" placeholder="Masukkan Password">
+  <input type="text" id="username" placeholder="Masukkan Username" autocomplete="off" />
+  <input type="password" id="password" placeholder="Masukkan Password" />
   <button onclick="login()">Masuk</button>
 </div>
 
 <!-- PANEL ADMIN -->
 <div class="data-container" id="adminPanel" style="display:none;">
   <h2>Data Pemesan Tiket 1 Dekade Ultras Manmodel</h2>
-  <input type="text" id="searchInvoice" placeholder="Cari Nomor Invoice..." style="width: 100%; padding: 8px; margin-bottom: 12px; font-size: 14px;">
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Nomor Invoice</th>
-          <th>Nama Lengkap</th>
-          <th>Email</th>
-          <th>No KTP</th>
-          <th>No Telepon</th>
-          <th>Kategori Tiket</th>
-          <th>Harga Tiket</th>
-          <th>Metode Pembayaran</th>
-          <th>Waktu Pemesanan</th>
-          <th>Bukti Pembayaran</th>
-          <th>Hapus</th>
-        </tr>
-      </thead>
-      <tbody id="tabelPemesan"></tbody>
-    </table>
+
+  <!-- TAB NAV -->
+  <div class="nav-tabs">
+    <button id="tabPemesan" class="active" onclick="showTab('pemesan')">Data Pemesan</button>
+    <button id="tabMasuk" onclick="showTab('masuk')">Data Masuk Tiket</button>
   </div>
+
+  <!-- TAB: DATA PEMESAN -->
+  <div id="tabPemesanContent">
+    <input type="text" id="searchInvoice" placeholder="Cari Nomor Invoice..." style="width: 100%; padding: 8px; margin-bottom: 12px; font-size: 14px;" oninput="filterPemesan()" />
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nomor Invoice</th>
+            <th>Nama Lengkap</th>
+            <th>Email</th>
+            <th>No KTP</th>
+            <th>No Telepon</th>
+            <th>Kategori Tiket</th>
+            <th>Harga Tiket</th>
+            <th>Metode Pembayaran</th>
+            <th>Waktu Pemesanan</th>
+            <th>Bukti Pembayaran</th>
+            <th>Centang</th>
+          </tr>
+        </thead>
+        <tbody id="tabelPemesan"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: DATA MASUK TIKET -->
+  <div id="tabMasukContent" style="display:none;">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nomor Invoice</th>
+            <th>Nama Lengkap</th>
+            <th>Email</th>
+            <th>No KTP</th>
+            <th>No Telepon</th>
+            <th>Kategori Tiket</th>
+            <th>Harga Tiket</th>
+            <th>Metode Pembayaran</th>
+            <th>Waktu Pemesanan</th>
+            <th>Bukti Pembayaran</th>
+          </tr>
+        </thead>
+        <tbody id="tabelMasuk"></tbody>
+      </table>
+    </div>
+  </div>
+
   <button class="logout-btn" onclick="logout()">Logout</button>
 </div>
 
-<!-- Modal untuk menampilkan gambar bukti pembayaran -->
+<!-- Modal Bukti Pembayaran -->
 <div id="modalBukti" class="modal">
   <span class="modal-close" id="modalClose">&times;</span>
-  <img class="modal-content" id="modalImage" alt="Bukti Pembayaran Besar">
+  <img class="modal-content" id="modalImage" alt="Bukti Pembayaran Besar" />
 </div>
 
 <script>
@@ -236,13 +279,15 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   const tabel = document.getElementById('tabelPemesan');
+  const tabelMasuk = document.getElementById('tabelMasuk');
+  let pemesanData = {}; // Menyimpan data pemesan untuk filter
 
   window.onload = () => {
     if (localStorage.getItem('adminLoggedIn') === 'true') showAdminPanel();
   };
 
   function login() {
-    const user = document.getElementById('username').value;
+    const user = document.getElementById('username').value.trim();
     const pass = document.getElementById('password').value;
     if (user === 'admin' && pass === 'ultrasmanmodel') {
       localStorage.setItem('adminLoggedIn', 'true');
@@ -261,151 +306,184 @@
     document.getElementById('loginForm').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
     loadData();
+    loadDataMasuk();
+  }
+
+  function showTab(tab) {
+    document.getElementById('tabPemesanContent').style.display = (tab === 'pemesan') ? 'block' : 'none';
+    document.getElementById('tabMasukContent').style.display = (tab === 'masuk') ? 'block' : 'none';
+    document.getElementById('tabPemesan').classList.toggle('active', tab === 'pemesan');
+    document.getElementById('tabMasuk').classList.toggle('active', tab === 'masuk');
   }
 
   function parseTanggal(str) {
     try {
-      // Format tanggal dari client: "15/11/2025, 14.30.00"
-      const parts = str.split(', ');
-      const [d, m, y] = parts[0].split('/').map(Number);
-      const [hh, mm, ss] = parts[1].split('.').map(Number);
-      return new Date(y, m - 1, d, hh, mm, ss);
-    } catch (e) {
-      return new Date(); // fallback jika parsing gagal
+      const d = new Date(str);
+      return d.toLocaleString('id-ID');
+    } catch {
+      return str;
     }
   }
 
+  // Load data pemesan dan simpan ke pemesanData untuk filter
   function loadData() {
-    db.ref('pemesan').on('value', snapshot => {
-      const list = [];
-      snapshot.forEach(namaSnap => {
-        const nama = namaSnap.key;
-        namaSnap.forEach(emailSnap => {
-          const email = emailSnap.key.replace(/_/g, '.');
-          emailSnap.forEach(ktpSnap => {
-            const ktp = ktpSnap.key;
-            ktpSnap.forEach(telpSnap => {
-              const telp = telpSnap.key;
-              telpSnap.forEach(kategoriSnap => {
-                const kategori = kategoriSnap.key;
-                kategoriSnap.forEach(metodeSnap => {
-                  const metode = metodeSnap.key;
-                  const data = metodeSnap.val();
-                  const waktu = parseTanggal(data.tanggal);
-                  list.push({
-                    nama,
-                    email,
-                    ktp,
-                    telp,
-                    kategori,
-                    metode,
-                    harga: hargaTiket[kategori] || "Rp -",
-                    waktu,
-                    tanggal: data.tanggal,
-                    buktiPembayaran: data.buktiPembayaran || null,
-                    invoiceCode: data.invoiceCode || "-",
-                    path: `${nama}/${emailSnap.key}/${ktp}/${telp}/${kategori}/${metode}`
-                  });
-                });
-              });
-            });
-          });
-        });
+    db.ref('pemesanan').on('value', snap => {
+      pemesanData = {};
+      tabel.innerHTML = '';
+      snap.forEach(child => {
+        const data = child.val();
+        pemesanData[child.key] = data;
       });
-
-      if (list.length === 0) {
-        tabel.innerHTML = '<tr><td colspan="12">Belum ada data pemesanan.</td></tr>';
-        return;
-      }
-
-      // Urutkan berdasarkan waktu pemesanan
-      list.sort((a, b) => a.waktu - b.waktu);
-
-      // Tampilkan ke tabel
-      tabel.innerHTML = list.map((item, i) => {
-        let buktiHtml = 'Tidak ada';
-        if (item.buktiPembayaran) {
-          buktiHtml = `<img src="${item.buktiPembayaran}" alt="Bukti Pembayaran" class="bukti-thumb" data-src="${item.buktiPembayaran}" />`;
-        }
-        const hapusBtn = item.buktiPembayaran ? `<button onclick="hapusData('${item.path}')">Hapus</button>` : '';
-        return `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${item.invoiceCode}</td>
-            <td>${item.nama}</td>
-            <td>${item.email}</td>
-            <td>${item.ktp}</td>
-            <td>${item.telp}</td>
-            <td>${item.kategori}</td>
-            <td>${item.harga}</td>
-            <td>${item.metode}</td>
-            <td>${item.tanggal}</td>
-            <td>${buktiHtml}</td>
-            <td>${hapusBtn}</td>
-          </tr>
-        `;
-      }).join('');
-
-      // Pasang event click pada semua thumbnail gambar bukti pembayaran
-      document.querySelectorAll('img.bukti-thumb').forEach(img => {
-        img.addEventListener('click', () => {
-          openModal(img.getAttribute('data-src'));
-        });
-      });
-    }, error => {
-      tabel.innerHTML = '<tr><td colspan="12">Error memuat data.</td></tr>';
-      console.error(error);
+      renderPemesanTable(pemesanData);
     });
   }
 
-  function hapusData(path) {
-    if (confirm('Yakin ingin menghapus data pemesanan ini?')) {
-      db.ref('pemesan/' + path).remove()
-        .then(() => {
-          alert('Data berhasil dihapus.');
-        })
-        .catch(error => {
-          alert('Gagal menghapus data: ' + error.message);
-        });
+  // Render tabel pemesan dengan data yang diberikan
+  function renderPemesanTable(dataObj) {
+    tabel.innerHTML = '';
+    let no = 1;
+    for (const key in dataObj) {
+      const data = dataObj[key];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${no++}</td>
+        <td>${data.invoice}</td>
+        <td>${data.nama}</td>
+        <td>${data.email}</td>
+        <td>${data.ktp}</td>
+        <td>${data.telepon}</td>
+        <td>${data.kategori}</td>
+        <td>${hargaTiket[data.kategori] || '-'}</td>
+        <td>${data.metode}</td>
+        <td>${parseTanggal(data.timestamp)}</td>
+        <td><img src="${data.bukti}" class="bukti-thumb" onclick="showModal('${data.bukti}')"></td>
+        <td><input type="checkbox" onchange="kirimKeDataMasuk('${key}', this)"></td>
+      `;
+      tabel.appendChild(tr);
     }
   }
 
-  // Modal handling
-  const modal = document.getElementById('modalBukti');
-  const modalImg = document.getElementById('modalImage');
-  const modalClose = document.getElementById('modalClose');
+  // Filter tabel pemesan berdasarkan input pencarian nomor invoice
+  function filterPemesan() {
+    const filter = document.getElementById('searchInvoice').value.toLowerCase();
+    const filtered = {};
+    for (const key in pemesanData) {
+      if (pemesanData[key].invoice.toLowerCase().includes(filter)) {
+        filtered[key] = pemesanData[key];
+      }
+    }
+    renderPemesanTable(filtered);
+  }
 
-  function openModal(src) {
-    modal.style.display = 'block';
+  // Load data masuk tiket
+  function loadDataMasuk() {
+    db.ref('dataMasukTiket').on('value', snap => {
+      tabelMasuk.innerHTML = '';
+      let no = 1;
+      snap.forEach(child => {
+        const data = child.val();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${no++}</td>
+          <td>${data.invoice}</td>
+          <td>${data.nama}</td>
+          <td>${data.email}</td>
+          <td>${data.ktp}</td>
+          <td>${data.telepon}</td>
+          <td>${data.kategori}</td>
+          <td>${hargaTiket[data.kategori] || '-'}</td>
+          <td>${data.metode}</td>
+          <td>${parseTanggal(data.timestamp)}</td>
+          <td><img src="${data.bukti}" class="bukti-thumb" onclick="showModal('${data.bukti}')"></td>
+        `;
+        tabelMasuk.appendChild(tr);
+      });
+    });
+  }
+
+  // Fungsi untuk memindahkan data pemesan ke data masuk tiket dan menghapus dari pemesanan
+  // Jika checkbox di-uncheck, data dikembalikan ke pemesanan
+  function kirimKeDataMasuk(id, checkbox) {
+    checkbox.disabled = true; // Disable checkbox saat proses
+    if (checkbox.checked) {
+      db.ref('pemesanan/' + id).once('value').then(snap => {
+        if (snap.exists()) {
+          const data = snap.val();
+          // Simpan ke dataMasukTiket
+          db.ref('dataMasukTiket/' + id).set(data)
+            .then(() => {
+              // Hapus dari pemesanan
+              return db.ref('pemesanan/' + id).remove();
+            })
+            .then(() => {
+              alert('Data berhasil dipindah ke Data Masuk Tiket!');
+              checkbox.disabled = false;
+              // Data otomatis refresh karena listener on('value')
+            })
+            .catch(err => {
+              alert('Terjadi kesalahan: ' + err.message);
+              checkbox.checked = false;
+              checkbox.disabled = false;
+            });
+        } else {
+          alert('Data tidak ditemukan!');
+          checkbox.checked = false;
+          checkbox.disabled = false;
+        }
+      }).catch(err => {
+        alert('Terjadi kesalahan saat mengambil data: ' + err.message);
+        checkbox.checked = false;
+        checkbox.disabled = false;
+      });
+    } else {
+      // Jika checkbox di-uncheck, kembalikan data ke pemesanan dan hapus dari dataMasukTiket
+      db.ref('dataMasukTiket/' + id).once('value').then(snap => {
+        if (snap.exists()) {
+          const data = snap.val();
+          db.ref('pemesanan/' + id).set(data)
+            .then(() => {
+              return db.ref('dataMasukTiket/' + id).remove();
+            })
+            .then(() => {
+              alert('Data dikembalikan ke Pemesanan!');
+              checkbox.disabled = false;
+            })
+            .catch(err => {
+              alert('Terjadi kesalahan: ' + err.message);
+              checkbox.checked = true;
+              checkbox.disabled = false;
+            });
+        } else {
+          alert('Data tidak ditemukan di Data Masuk Tiket!');
+          checkbox.checked = true;
+          checkbox.disabled = false;
+        }
+      }).catch(err => {
+        alert('Terjadi kesalahan saat mengambil data: ' + err.message);
+        checkbox.checked = true;
+        checkbox.disabled = false;
+      });
+    }
+  }
+
+  function showModal(src) {
+    const modal = document.getElementById('modalBukti');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = "block";
     modalImg.src = src;
   }
 
-  modalClose.onclick = function() {
-    modal.style.display = 'none';
-    modalImg.src = '';
+  document.getElementById('modalClose').onclick = function() {
+    document.getElementById('modalBukti').style.display = "none";
   }
 
   // Tutup modal jika klik di luar gambar
-  modal.onclick = function(event) {
+  window.onclick = function(event) {
+    const modal = document.getElementById('modalBukti');
     if (event.target === modal) {
-      modal.style.display = 'none';
-      modalImg.src = '';
+      modal.style.display = "none";
     }
   }
-
-  // Fitur pencarian invoice
-  document.getElementById('searchInvoice').addEventListener('input', function() {
-    const query = this.value.toUpperCase();
-    const rows = tabel.querySelectorAll('tr');
-    rows.forEach(row => {
-      const invoiceCell = row.cells[1]; // kolom invoice index 1
-      if (invoiceCell) {
-        const text = invoiceCell.textContent.toUpperCase();
-        row.style.display = text.includes(query) ? '' : 'none';
-      }
-    });
-  });
 </script>
-
 </body>
 </html>
