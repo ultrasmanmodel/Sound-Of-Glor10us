@@ -105,13 +105,10 @@
     </div>
     <div>
       <label for="kategori" class="font-semibold">Kategori Tiket</label>
-      <select id="kategori" required class="w-full p-2 border rounded">
-        <option value="" disabled selected>Pilih kategori</option>
-        <option value="Pre Sale 1">Pre Sale 1</option>
-        <option value="Pre Sale 2">Pre Sale 2</option>
-        <option value="Pre Sale 3">Pre Sale 3</option>
-      </select>
-      <div id="hargaInfo" class="mt-2 text-sm text-blue-600 font-semibold">Harga: -</div>
+      <!-- Ganti select dengan input hidden dan label teks -->
+      <input type="hidden" id="kategori" value="Pre Sale 1" />
+      <div class="p-2 border rounded bg-gray-100 text-gray-700 font-semibold">Pre Sale 1</div>
+      <div id="hargaInfo" class="mt-2 text-sm text-blue-600 font-semibold">Harga: Rp 65.000</div>
     </div>
 
     <div class="bg-gray-50 p-4 border rounded mt-4">
@@ -143,7 +140,7 @@
 
     <section class="eticket-main">
       <div class="eticket-left">
-        <img id="posterImage" src="ultras.jpg" alt="Poster Event" />
+        <img id="posterImage" src="pamflet.JPG" alt="Poster Event" />
       </div>
       <div class="eticket-center">
         <div class="info-group"><div class="info-label">Nomor Transaksi</div><div class="info-value" id="eInvoice">INV-XXXX</div></div>
@@ -162,25 +159,23 @@
 
     <section class="eticket-terms mt-4">
       <h2>Syarat & Ketentuan:</h2>
-      <p>1 tiket berlaku untuk 1 orang dan 1 hari sesuai tanggal acara.</p>
+      <p>1 Tiket berlaku untuk 1 orang dan 1 hari sesuai tanggal acara.</p>
       <p>Tunjukkan e-ticket untuk menukarkan gelang fisik di lokasi penukaran.</p>
       <p>Lokasi penukaran di belakang pasar singonoyo (warung mak'e).</p>
       <p>Penyalahgunaan tiket akan berakibat pembatalan tanpa pengembalian dana.</p>
-      <p>Siapa pun yang melakukan kecurangan bakal di pukul di tempat oleh panitia penyelenggara.</p>
+      <p>1 akun digunakan untuk 1 pembelian tiket.</p>
       <p class="print:hidden">Setelah mencetak e-ticket diharapkan konfirmasi ke whatsapp panitia.</p>
     </section>
   </section>
 </div>
 
 <script>
-  const hargaTiket = { "Pre Sale 1": "Rp 50.000", "Pre Sale 2": "Rp 65.000", "Pre Sale 3": "Rp 75.000" };
+  // Harga tiket hanya Pre Sale 1 dengan harga 65.000
+  const hargaTiket = { "Pre Sale 1": "Rp 65.000" };
   const waNumber = "6285855094087";
+  const kuotaMax = 100;
 
-  document.getElementById('kategori').addEventListener('change', () => {
-    const kategori = document.getElementById('kategori').value;
-    document.getElementById('hargaInfo').innerText = `Harga: ${hargaTiket[kategori] || '-'}`;
-  });
-
+  // Firebase config dan inisialisasi
   const firebaseConfig = {
     apiKey: "AIzaSyD1HWtoCb-EOapsJu7wnOXIXTEtQEOLCZ8",
     authDomain: "satudekade-4b54a.firebaseapp.com",
@@ -193,6 +188,7 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
+  // Fungsi generate kode invoice
   function generateInvoiceCode(nama) {
     const namaParts = nama.trim().split(/\s+/);
     const twoWords = namaParts.slice(0, 2).join("-").toUpperCase();
@@ -202,6 +198,7 @@
     return `INV-${twoWords}-${tgl}-${rand}`;
   }
 
+  // Preview bukti pembayaran
   const buktiInput = document.getElementById('buktiPembayaran');
   const previewBukti = document.getElementById('previewBukti');
 
@@ -220,8 +217,23 @@
     }
   });
 
-  document.getElementById("pesanForm").addEventListener("submit", function (e) {
+  // Fungsi cek kuota tiket yang sudah terpakai
+  async function cekKuota() {
+    const snapshot = await db.ref('pemesanan').once('value');
+    const data = snapshot.val();
+    if (!data) return 0;
+    return Object.keys(data).length;
+  }
+
+  document.getElementById("pesanForm").addEventListener("submit", async function (e) {
     e.preventDefault();
+
+    // Cek kuota tiket
+    const terpakai = await cekKuota();
+    if (terpakai >= kuotaMax) {
+      alert(`Maaf, kuota tiket sudah penuh (${kuotaMax} tiket terjual).`);
+      return;
+    }
 
     const buktiFile = buktiInput.files[0];
     if (!buktiFile) {
