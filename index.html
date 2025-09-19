@@ -106,9 +106,9 @@
     <div>
       <label for="kategori" class="font-semibold">Kategori Tiket</label>
       <!-- Ganti select dengan input hidden dan label teks -->
-      <input type="hidden" id="kategori" value="Pre Sale 1" />
-      <div class="p-2 border rounded bg-gray-100 text-gray-700 font-semibold">Pre Sale 1</div>
-      <div id="hargaInfo" class="mt-2 text-sm text-blue-600 font-semibold">Harga: Rp 65.000</div>
+      <input type="hidden" id="kategori" value="Early Bird" />
+      <div class="p-2 border rounded bg-gray-100 text-gray-700 font-semibold">Early Bird</div>
+      <div id="hargaInfo" class="mt-2 text-sm text-blue-600 font-semibold">Harga: Rp 50.000</div>
     </div>
 
     <div class="bg-gray-50 p-4 border rounded mt-4">
@@ -170,10 +170,10 @@
 </div>
 
 <script>
-  // Harga tiket hanya Pre Sale 1 dengan harga 65.000
-  const hargaTiket = { "Pre Sale 1": "Rp 65.000" };
+  // Harga tiket hanya Early Bird dengan harga 50.000
+  const hargaTiket = { "Early Bird": "Rp 50.000" };
   const waNumber = "6285855094087";
-  const kuotaMax = 100;
+  const kuotaMax = 10;
 
   // Firebase config dan inisialisasi
   const firebaseConfig = {
