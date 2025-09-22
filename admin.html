@@ -8,176 +8,33 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <style>
     * { box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-    h2 {
-      text-align: center;
-      margin: 20px 0;
-      color: #222;
-    }
-    .login-container {
-      max-width: 360px;
-      margin: 100px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-    .login-container input {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-      text-align: center;
-    }
-    .login-container button {
-      width: 100%;
-      padding: 12px;
-      background: #7a7a7b;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .login-container button:hover {
-      background: #5e5e5f;
-    }
-    .data-container {
-      padding: 20px 40px;
-    }
-    .nav-tabs {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-      gap: 20px;
-    }
-    .nav-tabs button {
-      padding: 10px 20px;
-      border: none;
-      background: #ccc;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .nav-tabs button.active {
-      background: #7a7a7b;
-      color: #fff;
-    }
-    .table-container {
-      overflow-x: auto;
-      background: #fff;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 1200px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: center;
-      vertical-align: middle;
-      font-size: 14px;
-      white-space: nowrap;
-    }
-    th {
-      background: #7a7a7b;
-      color: #fff;
-    }
+    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 0; }
+    h2 { text-align: center; margin: 20px 0; color: #222; }
+    .login-container { max-width: 360px; margin: 100px auto; padding: 20px; background: #fff;
+      border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1);}
+    .login-container input, .login-container button { width: 100%; padding: 12px; margin: 8px 0;
+      border-radius: 6px; font-size: 16px; }
+    .login-container button { background: #7a7a7b; color: white; border: none; cursor: pointer; }
+    .login-container button:hover { background: #5e5e5f; }
+    .data-container { padding: 20px 40px; }
+    .nav-tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 20px; }
+    .nav-tabs button { padding: 10px 20px; border: none; background: #ccc; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .nav-tabs button.active { background: #7a7a7b; color: #fff; }
+    .table-container { overflow-x: auto; background: #fff; padding: 10px; border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05); margin-bottom: 15px;}
+    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+    th, td { padding: 10px; border: 1px solid #ddd; text-align: center; font-size: 14px; }
+    th { background: #7a7a7b; color: #fff; }
     tr:nth-child(even) { background: #f9f9f9; }
     tr:hover { background: #e6e6e6; }
-    .logout-btn {
-      padding: 10px 24px;
-      background: #7a7a7b;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 20px;
-      float: right;
-    }
-    .logout-btn:hover {
-      background: #5e5e5f;
-    }
-    img.bukti-thumb {
-      max-height: 80px;
-      cursor: pointer;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      transition: box-shadow 0.3s;
-    }
-    img.bukti-thumb:hover {
-      box-shadow: 0 0 8px #666;
-    }
-    input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      padding-top: 60px;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.7);
-    }
-    .modal-content {
-      margin: auto;
-      display: block;
-      max-width: 90%;
-      max-height: 80vh;
-      border-radius: 8px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
-      animation: zoomIn 0.3s ease;
-    }
-    @keyframes zoomIn {
-      from {transform: scale(0.7); opacity: 0;}
-      to {transform: scale(1); opacity: 1;}
-    }
-    .modal-close {
-      position: fixed;
-      top: 20px;
-      right: 30px;
-      color: white;
-      font-size: 30px;
-      font-weight: bold;
-      cursor: pointer;
-      user-select: none;
-      z-index: 1001;
-      transition: color 0.3s;
-    }
-    .modal-close:hover {
-      color: #bbb;
-    }
-    @media (max-width: 768px) {
-      th, td {
-        font-size: 12px;
-        padding: 8px;
-      }
-      .data-container {
-        padding: 10px;
-      }
-      table {
-        min-width: 900px;
-      }
-    }
+    .logout-btn { padding: 10px 24px; background: #7a7a7b; color: white; border: none;
+      border-radius: 6px; cursor: pointer; float: right; }
+    .logout-btn:hover { background: #5e5e5f; }
+    img.bukti-thumb { max-height: 80px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; }
+    input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+    .export-btn { padding: 10px 20px; background: green; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; margin-bottom: 10px;}
+    .export-btn:hover { background: darkgreen; }
   </style>
 </head>
 <body>
@@ -202,23 +59,14 @@
 
   <!-- TAB: DATA PEMESAN -->
   <div id="tabPemesanContent">
-    <input type="text" id="searchInvoice" placeholder="Cari Nomor Invoice..." style="width: 100%; padding: 8px; margin-bottom: 12px; font-size: 14px;" oninput="filterPemesan()" />
+    <input type="text" id="searchInvoice" placeholder="Cari Nomor Invoice..." style="width: 100%; padding: 8px; margin-bottom: 12px;" oninput="filterPemesan()" />
     <div class="table-container">
       <table>
         <thead>
           <tr>
-            <th>No</th>
-            <th>Nomor Invoice</th>
-            <th>Nama Lengkap</th>
-            <th>Email</th>
-            <th>No KTP</th>
-            <th>No Telepon</th>
-            <th>Kategori Tiket</th>
-            <th>Harga Tiket</th>
-            <th>Metode Pembayaran</th>
-            <th>Waktu Pemesanan</th>
-            <th>Bukti Pembayaran</th>
-            <th>Centang</th>
+            <th>No</th><th>Nomor Invoice</th><th>Nama Lengkap</th><th>Email</th>
+            <th>No KTP</th><th>No Telepon</th><th>Kategori Tiket</th><th>Harga Tiket</th>
+            <th>Metode Pembayaran</th><th>Waktu Pemesanan</th><th>Bukti Pembayaran</th><th>Centang</th>
           </tr>
         </thead>
         <tbody id="tabelPemesan"></tbody>
@@ -228,21 +76,14 @@
 
   <!-- TAB: DATA MASUK TIKET -->
   <div id="tabMasukContent" style="display:none;">
+    <button class="export-btn" onclick="exportTableToExcel('tiket_masuk.xls')">Export Excel</button>
     <div class="table-container">
-      <table>
+      <table id="tabelMasukWrapper">
         <thead>
           <tr>
-            <th>No</th>
-            <th>Nomor Invoice</th>
-            <th>Nama Lengkap</th>
-            <th>Email</th>
-            <th>No KTP</th>
-            <th>No Telepon</th>
-            <th>Kategori Tiket</th>
-            <th>Harga Tiket</th>
-            <th>Metode Pembayaran</th>
-            <th>Waktu Pemesanan</th>
-            <th>Bukti Pembayaran</th>
+            <th>No</th><th>Nomor Invoice</th><th>Nama Lengkap</th><th>Email</th>
+            <th>No KTP</th><th>No Telepon</th><th>Kategori Tiket</th><th>Harga Tiket</th>
+            <th>Metode Pembayaran</th><th>Waktu Pemesanan</th><th>Bukti Pembayaran</th>
           </tr>
         </thead>
         <tbody id="tabelMasuk"></tbody>
@@ -253,17 +94,9 @@
   <button class="logout-btn" onclick="logout()">Logout</button>
 </div>
 
-<!-- Modal Bukti Pembayaran -->
-<div id="modalBukti" class="modal">
-  <span class="modal-close" id="modalClose">&times;</span>
-  <img class="modal-content" id="modalImage" alt="Bukti Pembayaran Besar" />
-</div>
-
 <script>
-  // Hanya Early Bird dengan harga Rp 50.000
-  const hargaTiket = {
-    "Early Bird": "Rp 50.000"
-  };
+  const hargaTiket = { "Early Bird": "Rp 50.000" };
+  const kuotaMax = 10;
 
   const firebaseConfig = {
     apiKey: "AIzaSyD1HWtoCb-EOapsJu7wnOXIXTEtQEOLCZ8",
@@ -274,218 +107,127 @@
     messagingSenderId: "76649124389",
     appId: "1:76649124389:web:3b0b7072ea71e7ece7a5cc"
   };
-
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
+
+  let pemesanData = {};
   const tabel = document.getElementById('tabelPemesan');
   const tabelMasuk = document.getElementById('tabelMasuk');
-  let pemesanData = {}; // Menyimpan data pemesan untuk filter
 
-  window.onload = () => {
-    if (localStorage.getItem('adminLoggedIn') === 'true') showAdminPanel();
-  };
-
+  // ✅ Login
   function login() {
     const user = document.getElementById('username').value.trim();
     const pass = document.getElementById('password').value;
     if (user === 'admin' && pass === 'ultrasmanmodel') {
       localStorage.setItem('adminLoggedIn', 'true');
       showAdminPanel();
-    } else {
-      alert('Username atau password salah!');
-    }
+    } else alert('Username atau password salah!');
   }
-
-  function logout() {
-    localStorage.removeItem('adminLoggedIn');
-    location.reload();
-  }
+  function logout() { localStorage.removeItem('adminLoggedIn'); location.reload(); }
+  window.onload = () => { if (localStorage.getItem('adminLoggedIn') === 'true') showAdminPanel(); };
 
   function showAdminPanel() {
     document.getElementById('loginForm').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
-    loadData();
-    loadDataMasuk();
+    loadData(); loadDataMasuk();
   }
-
   function showTab(tab) {
-    document.getElementById('tabPemesanContent').style.display = (tab === 'pemesan') ? 'block' : 'none';
-    document.getElementById('tabMasukContent').style.display = (tab === 'masuk') ? 'block' : 'none';
-    document.getElementById('tabPemesan').classList.toggle('active', tab === 'pemesan');
-    document.getElementById('tabMasuk').classList.toggle('active', tab === 'masuk');
+    document.getElementById('tabPemesanContent').style.display = (tab==='pemesan')?'block':'none';
+    document.getElementById('tabMasukContent').style.display = (tab==='masuk')?'block':'none';
+    document.getElementById('tabPemesan').classList.toggle('active',tab==='pemesan');
+    document.getElementById('tabMasuk').classList.toggle('active',tab==='masuk');
   }
 
-  function parseTanggal(str) {
-    try {
-      const d = new Date(str);
-      return d.toLocaleString('id-ID');
-    } catch {
-      return str;
-    }
+  function parseTanggal(str) { try { return new Date(str).toLocaleString('id-ID'); } catch { return str; } }
+
+  // ✅ Hitung kuota
+  async function cekKuota() {
+    const snap = await db.ref('dataMasukTiket').once('value');
+    return snap.size;
   }
 
-  // Load data pemesan dan simpan ke pemesanData untuk filter
+  // ✅ Load pemesanan
   function loadData() {
     db.ref('pemesanan').on('value', snap => {
-      pemesanData = {};
-      tabel.innerHTML = '';
-      snap.forEach(child => {
-        const data = child.val();
-        pemesanData[child.key] = data;
-      });
+      pemesanData = {}; tabel.innerHTML = '';
+      snap.forEach(child => { pemesanData[child.key] = child.val(); });
       renderPemesanTable(pemesanData);
     });
   }
-
-  // Render tabel pemesan dengan data yang diberikan
   function renderPemesanTable(dataObj) {
-    tabel.innerHTML = '';
-    let no = 1;
+    tabel.innerHTML=''; let no=1;
     for (const key in dataObj) {
-      const data = dataObj[key];
-      const harga = hargaTiket[data.kategori] || '-';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${no++}</td>
-        <td>${data.invoice}</td>
-        <td>${data.nama}</td>
-        <td>${data.email}</td>
-        <td>${data.ktp}</td>
-        <td>${data.telepon}</td>
-        <td>${data.kategori}</td>
-        <td>${harga}</td>
-        <td>${data.metode}</td>
-        <td>${parseTanggal(data.timestamp)}</td>
-        <td><img src="${data.bukti}" class="bukti-thumb" onclick="showModal('${data.bukti}')"></td>
-        <td><input type="checkbox" onchange="kirimKeDataMasuk('${key}', this)"></td>
-      `;
-      tabel.appendChild(tr);
+      const d=dataObj[key]; const harga=hargaTiket[d.kategori]||'-';
+      tabel.innerHTML += `
+        <tr>
+          <td>${no++}</td><td>${d.invoice}</td><td>${d.nama}</td><td>${d.email}</td>
+          <td>${d.ktp}</td><td>${d.telepon}</td><td>${d.kategori}</td><td>${harga}</td>
+          <td>${d.metode}</td><td>${parseTanggal(d.timestamp)}</td>
+          <td><img src="${d.bukti}" class="bukti-thumb" onclick="window.open('${d.bukti}','_blank')"></td>
+          <td><input type="checkbox" onchange="kirimKeDataMasuk('${key}',this)"></td>
+        </tr>`;
     }
   }
-
-  // Filter tabel pemesan berdasarkan input pencarian nomor invoice
   function filterPemesan() {
-    const filter = document.getElementById('searchInvoice').value.toLowerCase();
-    const filtered = {};
-    for (const key in pemesanData) {
-      if (pemesanData[key].invoice.toLowerCase().includes(filter)) {
-        filtered[key] = pemesanData[key];
-      }
-    }
+    const f=document.getElementById('searchInvoice').value.toLowerCase(); const filtered={};
+    for(const k in pemesanData){ if(pemesanData[k].invoice.toLowerCase().includes(f)) filtered[k]=pemesanData[k]; }
     renderPemesanTable(filtered);
   }
 
-  // Load data masuk tiket
+  // ✅ Load Data Masuk dengan nomor urut permanen
   function loadDataMasuk() {
-    db.ref('dataMasukTiket').on('value', snap => {
-      tabelMasuk.innerHTML = '';
-      let no = 1;
+    db.ref('dataMasukTiket').orderByChild('noUrut').on('value', snap => {
+      tabelMasuk.innerHTML=''; 
       snap.forEach(child => {
-        const data = child.val();
-        const harga = hargaTiket[data.kategori] || '-';
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${no++}</td>
-          <td>${data.invoice}</td>
-          <td>${data.nama}</td>
-          <td>${data.email}</td>
-          <td>${data.ktp}</td>
-          <td>${data.telepon}</td>
-          <td>${data.kategori}</td>
-          <td>${harga}</td>
-          <td>${data.metode}</td>
-          <td>${parseTanggal(data.timestamp)}</td>
-          <td><img src="${data.bukti}" class="bukti-thumb" onclick="showModal('${data.bukti}')"></td>
-        `;
-        tabelMasuk.appendChild(tr);
+        const d=child.val(); const harga=hargaTiket[d.kategori]||'-';
+        tabelMasuk.innerHTML += `
+          <tr>
+            <td>${d.noUrut}</td><td>${d.invoice}</td><td>${d.nama}</td><td>${d.email}</td>
+            <td>${d.ktp}</td><td>${d.telepon}</td><td>${d.kategori}</td><td>${harga}</td>
+            <td>${d.metode}</td><td>${parseTanggal(d.timestamp)}</td>
+            <td><img src="${d.bukti}" class="bukti-thumb" onclick="window.open('${d.bukti}','_blank')"></td>
+          </tr>`;
       });
     });
   }
 
-  // Fungsi untuk memindahkan data pemesan ke data masuk tiket dan menghapus dari pemesanan
-  // Jika checkbox di-uncheck, data dikembalikan ke pemesanan
-  function kirimKeDataMasuk(id, checkbox) {
-    checkbox.disabled = true; // Disable checkbox saat proses
-    if (checkbox.checked) {
-      db.ref('pemesanan/' + id).once('value').then(snap => {
-        if (snap.exists()) {
-          const data = snap.val();
-          // Simpan ke dataMasukTiket
-          db.ref('dataMasukTiket/' + id).set(data)
-            .then(() => {
-              // Hapus dari pemesanan
-              return db.ref('pemesanan/' + id).remove();
-            })
-            .then(() => {
-              alert('Data berhasil dipindah ke Data Masuk Tiket!');
-              checkbox.disabled = false;
-              // Data otomatis refresh karena listener on('value')
-            })
-            .catch(err => {
-              alert('Terjadi kesalahan: ' + err.message);
-              checkbox.checked = false;
-              checkbox.disabled = false;
-            });
-        } else {
-          alert('Data tidak ditemukan!');
-          checkbox.checked = false;
-          checkbox.disabled = false;
-        }
-      }).catch(err => {
-        alert('Terjadi kesalahan saat mengambil data: ' + err.message);
-        checkbox.checked = false;
-        checkbox.disabled = false;
-      });
+  // ✅ Pindah data dengan nomor urut berurutan
+  async function kirimKeDataMasuk(id, checkbox) {
+    checkbox.disabled=true;
+    if(checkbox.checked){
+      const terpakai=await cekKuota();
+      if(terpakai>=kuotaMax){ alert('Kuota tiket sudah habis (10 tiket terjual)'); checkbox.checked=false; checkbox.disabled=false; return; }
+      const snap=await db.ref('pemesanan/'+id).once('value');
+      if(snap.exists()){
+        const data=snap.val();
+        // Nomor urut baru = jumlah data + 1
+        const snapMasuk = await db.ref('dataMasukTiket').once('value');
+        const nextNo = snapMasuk.numChildren() + 1;
+        data.noUrut = nextNo;
+        await db.ref('dataMasukTiket/'+id).set(data);
+        await db.ref('pemesanan/'+id).remove();
+      }
+      checkbox.disabled=false;
     } else {
-      // Jika checkbox di-uncheck, kembalikan data ke pemesanan dan hapus dari dataMasukTiket
-      db.ref('dataMasukTiket/' + id).once('value').then(snap => {
-        if (snap.exists()) {
-          const data = snap.val();
-          db.ref('pemesanan/' + id).set(data)
-            .then(() => {
-              return db.ref('dataMasukTiket/' + id).remove();
-            })
-            .then(() => {
-              alert('Data dikembalikan ke Pemesanan!');
-              checkbox.disabled = false;
-            })
-            .catch(err => {
-              alert('Terjadi kesalahan: ' + err.message);
-              checkbox.checked = true;
-              checkbox.disabled = false;
-            });
-        } else {
-          alert('Data tidak ditemukan di Data Masuk Tiket!');
-          checkbox.checked = true;
-          checkbox.disabled = false;
-        }
-      }).catch(err => {
-        alert('Terjadi kesalahan saat mengambil data: ' + err.message);
-        checkbox.checked = true;
-        checkbox.disabled = false;
-      });
+      const snap=await db.ref('dataMasukTiket/'+id).once('value');
+      if(snap.exists()){ 
+        const data=snap.val();
+        delete data.noUrut;
+        await db.ref('pemesanan/'+id).set(data);
+        await db.ref('dataMasukTiket/'+id).remove();
+      }
+      checkbox.disabled=false;
     }
   }
 
-  function showModal(src) {
-    const modal = document.getElementById('modalBukti');
-    const modalImg = document.getElementById('modalImage');
-    modal.style.display = "block";
-    modalImg.src = src;
-  }
-
-  document.getElementById('modalClose').onclick = function() {
-    document.getElementById('modalBukti').style.display = "none";
-  } 
-
-  // Tutup modal jika klik di luar gambar
-  window.onclick = function(event) {
-    const modal = document.getElementById('modalBukti');
-    if (event.target === modal) {
-      modal.style.display = "none";
-    }
+  // ✅ Export Excel
+  function exportTableToExcel(filename='export.xls'){
+    const table=document.getElementById("tabelMasukWrapper").outerHTML;
+    const data=`<html><head><meta charset="UTF-8"></head><body>${table}</body></html>`;
+    const blob=new Blob([data],{type:'application/vnd.ms-excel'});
+    const link=document.createElement("a");
+    link.href=URL.createObjectURL(blob); link.download=filename; link.click();
   }
 </script>
 </body>
 </html>
-
