@@ -10,30 +10,26 @@
     * { box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 0; }
     h2 { text-align: center; margin: 20px 0; color: #222; }
-    .login-container { max-width: 360px; margin: 100px auto; padding: 20px; background: #fff;
-      border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1);}
-    .login-container input, .login-container button { width: 100%; padding: 12px; margin: 8px 0;
-      border-radius: 6px; font-size: 16px; }
+    .login-container { max-width: 360px; margin: 100px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1);}
+    .login-container input, .login-container button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; font-size: 16px; }
     .login-container button { background: #7a7a7b; color: white; border: none; cursor: pointer; }
     .login-container button:hover { background: #5e5e5f; }
     .data-container { padding: 20px 40px; }
     .nav-tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 20px; }
     .nav-tabs button { padding: 10px 20px; border: none; background: #ccc; border-radius: 6px; cursor: pointer; font-weight: bold; }
     .nav-tabs button.active { background: #7a7a7b; color: #fff; }
-    .table-container { overflow-x: auto; background: #fff; padding: 10px; border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05); margin-bottom: 15px;}
+    .table-container { overflow-x: auto; background: #fff; padding: 10px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05); margin-bottom: 15px;}
     table { width: 100%; border-collapse: collapse; min-width: 1200px; }
     th, td { padding: 10px; border: 1px solid #ddd; text-align: center; font-size: 14px; }
     th { background: #7a7a7b; color: #fff; }
     tr:nth-child(even) { background: #f9f9f9; }
     tr:hover { background: #e6e6e6; }
-    .logout-btn { padding: 10px 24px; background: #7a7a7b; color: white; border: none;
-      border-radius: 6px; cursor: pointer; float: right; }
+    .logout-btn { padding: 10px 24px; background: #7a7a7b; color: white; border: none; border-radius: 6px; cursor: pointer; float: right; }
     .logout-btn:hover { background: #5e5e5f; }
-    img.bukti-thumb { max-height: 80px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; }
+    img.bukti-thumb { max-height: 80px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; transition: transform 0.2s; }
+    img.bukti-thumb:hover { transform: scale(1.2); }
     input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
-    .export-btn { padding: 10px 20px; background: green; color: #fff; border: none;
-      border-radius: 6px; cursor: pointer; margin-bottom: 10px;}
+    .export-btn { padding: 10px 20px; background: green; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-bottom: 10px;}
     .export-btn:hover { background: darkgreen; }
   </style>
 </head>
@@ -114,7 +110,7 @@
   const tabel = document.getElementById('tabelPemesan');
   const tabelMasuk = document.getElementById('tabelMasuk');
 
-  // ✅ Login
+  // LOGIN
   function login() {
     const user = document.getElementById('username').value.trim();
     const pass = document.getElementById('password').value;
@@ -140,13 +136,12 @@
 
   function parseTanggal(str) { try { return new Date(str).toLocaleString('id-ID'); } catch { return str; } }
 
-  // ✅ Hitung kuota
   async function cekKuota() {
     const snap = await db.ref('dataMasukTiket').once('value');
     return snap.size;
   }
 
-  // ✅ Load pemesanan
+  // LOAD DATA PEMESAN
   function loadData() {
     db.ref('pemesanan').on('value', snap => {
       pemesanData = {}; tabel.innerHTML = '';
@@ -157,50 +152,56 @@
   function renderPemesanTable(dataObj) {
     tabel.innerHTML=''; let no=1;
     for (const key in dataObj) {
-      const d=dataObj[key]; const harga=hargaTiket[d.kategori]||'-';
+      const d = dataObj[key]; 
+      const harga = hargaTiket[d.kategori] || '-';
+      const buktiEsc = encodeURI(d.bukti); // pastikan aman untuk URL
       tabel.innerHTML += `
         <tr>
           <td>${no++}</td><td>${d.invoice}</td><td>${d.nama}</td><td>${d.email}</td>
           <td>${d.ktp}</td><td>${d.telepon}</td><td>${d.kategori}</td><td>${harga}</td>
           <td>${d.metode}</td><td>${parseTanggal(d.timestamp)}</td>
-          <td><img src="${d.bukti}" class="bukti-thumb" onclick="window.open('${d.bukti}','_blank')"></td>
+          <td><img src="${d.bukti}" class="bukti-thumb" onclick="window.open('${buktiEsc}','_blank')"></td>
           <td><input type="checkbox" onchange="kirimKeDataMasuk('${key}',this)"></td>
         </tr>`;
     }
   }
+
   function filterPemesan() {
-    const f=document.getElementById('searchInvoice').value.toLowerCase(); const filtered={};
-    for(const k in pemesanData){ if(pemesanData[k].invoice.toLowerCase().includes(f)) filtered[k]=pemesanData[k]; }
+    const f = document.getElementById('searchInvoice').value.toLowerCase(); 
+    const filtered = {};
+    for(const k in pemesanData) {
+      if(pemesanData[k].invoice.toLowerCase().includes(f)) filtered[k]=pemesanData[k];
+    }
     renderPemesanTable(filtered);
   }
 
-  // ✅ Load Data Masuk dengan nomor urut permanen
+  // LOAD DATA MASUK
   function loadDataMasuk() {
     db.ref('dataMasukTiket').orderByChild('noUrut').on('value', snap => {
       tabelMasuk.innerHTML=''; 
       snap.forEach(child => {
-        const d=child.val(); const harga=hargaTiket[d.kategori]||'-';
+        const d = child.val(); 
+        const harga = hargaTiket[d.kategori] || '-';
+        const buktiEsc = encodeURI(d.bukti);
         tabelMasuk.innerHTML += `
           <tr>
             <td>${d.noUrut}</td><td>${d.invoice}</td><td>${d.nama}</td><td>${d.email}</td>
             <td>${d.ktp}</td><td>${d.telepon}</td><td>${d.kategori}</td><td>${harga}</td>
             <td>${d.metode}</td><td>${parseTanggal(d.timestamp)}</td>
-            <td><img src="${d.bukti}" class="bukti-thumb" onclick="window.open('${d.bukti}','_blank')"></td>
+            <td><img src="${d.bukti}" class="bukti-thumb" onclick="window.open('${buktiEsc}','_blank')"></td>
           </tr>`;
       });
     });
   }
 
-  // ✅ Pindah data dengan nomor urut berurutan
   async function kirimKeDataMasuk(id, checkbox) {
     checkbox.disabled=true;
     if(checkbox.checked){
-      const terpakai=await cekKuota();
-      if(terpakai>=kuotaMax){ alert('Kuota tiket sudah habis (10 tiket terjual)'); checkbox.checked=false; checkbox.disabled=false; return; }
-      const snap=await db.ref('pemesanan/'+id).once('value');
+      const terpakai = await cekKuota();
+      if(terpakai >= kuotaMax){ alert('Kuota tiket sudah habis (10 tiket terjual)'); checkbox.checked=false; checkbox.disabled=false; return; }
+      const snap = await db.ref('pemesanan/'+id).once('value');
       if(snap.exists()){
-        const data=snap.val();
-        // Nomor urut baru = jumlah data + 1
+        const data = snap.val();
         const snapMasuk = await db.ref('dataMasukTiket').once('value');
         const nextNo = snapMasuk.numChildren() + 1;
         data.noUrut = nextNo;
@@ -209,9 +210,9 @@
       }
       checkbox.disabled=false;
     } else {
-      const snap=await db.ref('dataMasukTiket/'+id).once('value');
+      const snap = await db.ref('dataMasukTiket/'+id).once('value');
       if(snap.exists()){ 
-        const data=snap.val();
+        const data = snap.val();
         delete data.noUrut;
         await db.ref('pemesanan/'+id).set(data);
         await db.ref('dataMasukTiket/'+id).remove();
@@ -220,7 +221,6 @@
     }
   }
 
-  // ✅ Export Excel
   function exportTableToExcel(filename='export.xls'){
     const table=document.getElementById("tabelMasukWrapper").outerHTML;
     const data=`<html><head><meta charset="UTF-8"></head><body>${table}</body></html>`;
