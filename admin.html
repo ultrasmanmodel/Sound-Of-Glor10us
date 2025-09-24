@@ -30,6 +30,8 @@
     input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
     .export-btn { padding: 8px 16px; background: green; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-bottom: 10px;}
     .export-btn:hover { background: darkgreen; }
+    .hapus-btn { padding: 5px 10px; background: red; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    .hapus-btn:hover { background: darkred; }
 
     /* Modal sederhana */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
@@ -60,7 +62,6 @@
 
   <!-- TAB: DATA PEMESAN -->
   <div id="tabPemesanContent">
-    <input type="text" id="searchInvoice" placeholder="Cari Nomor Invoice..." style="width: 100%; padding: 6px; margin-bottom: 10px;" oninput="filterPemesan()" />
     <div class="table-container">
       <table>
         <thead>
@@ -77,6 +78,7 @@
 
   <!-- TAB: DATA MASUK -->
   <div id="tabMasukContent" style="display:none;">
+    <input type="text" id="searchInvoiceMasuk" placeholder="Cari Nomor Invoice..." style="width: 100%; padding: 6px; margin-bottom: 10px;" oninput="filterMasuk()" />
     <button class="export-btn" onclick="exportTableToExcel('tiket_masuk.xls')">Export Excel</button>
     <div class="table-container">
       <table id="tabelMasukWrapper">
@@ -84,7 +86,7 @@
           <tr>
             <th>No</th><th>Invoice</th><th>Nama</th><th>Email</th>
             <th>KTP</th><th>Telepon</th><th>Kategori</th><th>Harga</th>
-            <th>Metode</th><th>Waktu</th><th>Bukti</th>
+            <th>Metode</th><th>Waktu</th><th>Bukti</th><th>Aksi</th>
           </tr>
         </thead>
         <tbody id="tabelMasuk"></tbody>
@@ -120,6 +122,7 @@
   const db = firebase.database();
 
   let pemesanData = {};
+  let masukData = {};
   const tabel = document.getElementById('tabelPemesan');
   const tabelMasuk = document.getElementById('tabelMasuk');
   const modal = document.getElementById('modalBukti');
@@ -148,7 +151,6 @@
   }
 
   function parseTanggal(str){ try { return new Date(str).toLocaleString('id-ID'); } catch { return str; } }
-  async function cekKuota(){ const snap=await db.ref('dataMasukTiket').once('value'); return snap.size; }
 
   function showModal(src){ imgModal.src=src; modal.style.display='flex'; }
   function closeModal(){ modal.style.display='none'; imgModal.src=''; }
@@ -176,34 +178,41 @@
     }
   }
 
-  function filterPemesan(){
-    const f=document.getElementById('searchInvoice').value.toLowerCase();
-    const filtered={};
-    for(const k in pemesanData){ if(pemesanData[k].invoice.toLowerCase().includes(f)) filtered[k]=pemesanData[k]; }
-    renderPemesanTable(filtered);
-  }
-
   function loadDataMasuk(){
     db.ref('dataMasukTiket').orderByChild('noUrut').on('value', snap=>{
-      tabelMasuk.innerHTML='';
+      masukData={}; tabelMasuk.innerHTML='';
       snap.forEach(child=>{
-        const d=child.val(); const harga = hargaTiket[d.kategori]||'-';
-        tabelMasuk.innerHTML += `
-          <tr>
-            <td>${d.noUrut}</td><td>${d.invoice}</td><td>${d.nama}</td><td>${d.email}</td>
-            <td>${d.ktp}</td><td>${d.telepon}</td><td>${d.kategori}</td><td>${harga}</td>
-            <td>${d.metode}</td><td>${parseTanggal(d.timestamp)}</td>
-            <td><img src="${d.bukti}" class="bukti-thumb" onclick="showModal('${d.bukti}')"></td>
-          </tr>`;
+        masukData[child.key]=child.val();
       });
+      renderMasukTable(masukData);
     });
+  }
+
+  function renderMasukTable(dataObj){
+    tabelMasuk.innerHTML=''; let no=1;
+    for(const key in dataObj){
+      const d = dataObj[key]; const harga = hargaTiket[d.kategori]||'-';
+      tabelMasuk.innerHTML += `
+        <tr>
+          <td>${no++}</td><td>${d.invoice}</td><td>${d.nama}</td><td>${d.email}</td>
+          <td>${d.ktp}</td><td>${d.telepon}</td><td>${d.kategori}</td><td>${harga}</td>
+          <td>${d.metode}</td><td>${parseTanggal(d.timestamp)}</td>
+          <td><img src="${d.bukti}" class="bukti-thumb" onclick="showModal('${d.bukti}')"></td>
+          <td><button class="hapus-btn" onclick="hapusDataMasuk('${key}')">Hapus</button></td>
+        </tr>`;
+    }
+  }
+
+  function filterMasuk(){
+    const f=document.getElementById('searchInvoiceMasuk').value.toLowerCase();
+    const filtered={};
+    for(const k in masukData){ if(masukData[k].invoice.toLowerCase().includes(f)) filtered[k]=masukData[k]; }
+    renderMasukTable(filtered);
   }
 
   async function kirimKeDataMasuk(id, checkbox){
     checkbox.disabled=true;
     if(checkbox.checked){
-      const terpakai = await cekKuota();
-      if(terpakai>=kuotaMax){ alert('Kuota tiket sudah habis (10 tiket terjual)'); checkbox.checked=false; checkbox.disabled=false; return; }
       const snap = await db.ref('pemesanan/'+id).once('value');
       if(snap.exists()){
         const data = snap.val();
@@ -214,14 +223,12 @@
         await db.ref('pemesanan/'+id).remove();
       }
       checkbox.disabled=false;
-    } else {
-      const snap = await db.ref('dataMasukTiket/'+id).once('value');
-      if(snap.exists()){
-        const data = snap.val(); delete data.noUrut;
-        await db.ref('pemesanan/'+id).set(data);
-        await db.ref('dataMasukTiket/'+id).remove();
-      }
-      checkbox.disabled=false;
+    }
+  }
+
+  function hapusDataMasuk(id){
+    if(confirm('Yakin ingin menghapus data ini?')){
+      db.ref('dataMasukTiket/'+id).remove();
     }
   }
 
